@@ -2,21 +2,21 @@
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
     <title>无聊 blog</title>
-    <link>https://zigitn.github.io/</link>
+    <link>https://blog.5a6c.me/</link>
     <description>Recent content on 无聊 blog</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>zh-cn</language>
     <lastBuildDate>Wed, 12 Jun 2019 18:25:40 +0800</lastBuildDate>
     
-	<atom:link href="https://zigitn.github.io/index.xml" rel="self" type="application/rss+xml" />
+	<atom:link href="https://blog.5a6c.me/index.xml" rel="self" type="application/rss+xml" />
     
     
     <item>
       <title>About</title>
-      <link>https://zigitn.github.io/about/</link>
+      <link>https://blog.5a6c.me/about/</link>
       <pubDate>Wed, 12 Jun 2019 18:25:40 +0800</pubDate>
       
-      <guid>https://zigitn.github.io/about/</guid>
+      <guid>https://blog.5a6c.me/about/</guid>
       <description>一个无聊的博客</description>
     </item>
     

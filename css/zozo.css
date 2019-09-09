@@ -1,5 +1,6 @@
 @charset "UTF-8";
 /*basic styles starts*/
+
 html {
   background-color: #f7f7f7;
   -webkit-font-smoothing: antialiased;
@@ -687,3 +688,7 @@ a.back_to_top:hover span {
 
 /*animation ends*/
 /*# sourceMappingURL=zozo.css.map */
+
+div.firends_links{
+  margin-bottom: 10px;
+}

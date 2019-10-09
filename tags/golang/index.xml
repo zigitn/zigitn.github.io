@@ -1,14 +1,14 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
-    <title>Posts on 无聊博客</title>
-    <link>https://blog.5a6c.me/posts/</link>
-    <description>Recent content in Posts on 无聊博客</description>
+    <title>golang on 无聊博客</title>
+    <link>https://blog.5a6c.me/tags/golang/</link>
+    <description>Recent content in golang on 无聊博客</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>zh-cn</language>
     <lastBuildDate>Wed, 02 Oct 2019 15:21:35 +0800</lastBuildDate>
     
-	<atom:link href="https://blog.5a6c.me/posts/index.xml" rel="self" type="application/rss+xml" />
+	<atom:link href="https://blog.5a6c.me/tags/golang/index.xml" rel="self" type="application/rss+xml" />
     
     
     <item>
@@ -18,15 +18,6 @@
       
       <guid>https://blog.5a6c.me/posts/v2ray-subscribe-to-config/</guid>
       <description>1.请求并解码 大多数订阅链接都是base64编码过的, 所以首先使用net/http中的Get()方法请求订阅链接, 获得base64编码后进行</description>
-    </item>
-    
-    <item>
-      <title>Jiandan Bot:一个煎蛋爬虫 &#43; telegram bot</title>
-      <link>https://blog.5a6c.me/posts/jiandan-bot/</link>
-      <pubDate>Sat, 31 Aug 2019 13:15:23 +0800</pubDate>
-      
-      <guid>https://blog.5a6c.me/posts/jiandan-bot/</guid>
-      <description>&amp;emsp;&amp;emsp;前段时间突然喜欢无聊的时候去煎蛋看看无聊图，可是每天打开浏览器看煎蛋太麻烦(，并且 telegram 现存的一个煎蛋爬虫 channel 只推送热门图</description>
     </item>
     
   </channel>

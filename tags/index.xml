@@ -6,10 +6,19 @@
     <description>Recent content in Tags on 无聊博客</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>zh-cn</language>
-    <lastBuildDate>Sat, 31 Aug 2019 13:15:23 +0800</lastBuildDate>
+    <lastBuildDate>Wed, 02 Oct 2019 15:21:35 +0800</lastBuildDate>
     
 	<atom:link href="https://blog.5a6c.me/tags/index.xml" rel="self" type="application/rss+xml" />
     
+    
+    <item>
+      <title>golang</title>
+      <link>https://blog.5a6c.me/tags/golang/</link>
+      <pubDate>Wed, 02 Oct 2019 15:21:35 +0800</pubDate>
+      
+      <guid>https://blog.5a6c.me/tags/golang/</guid>
+      <description></description>
+    </item>
     
     <item>
       <title>telegram</title>

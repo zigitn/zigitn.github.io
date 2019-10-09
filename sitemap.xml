@@ -3,27 +3,37 @@
   xmlns:xhtml="http://www.w3.org/1999/xhtml">
   
   <url>
+    <loc>https://blog.5a6c.me/tags/golang/</loc>
+    <lastmod>2019-10-02T15:21:35+08:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>https://blog.5a6c.me/posts/</loc>
+    <lastmod>2019-10-02T15:21:35+08:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>https://blog.5a6c.me/tags/</loc>
+    <lastmod>2019-10-02T15:21:35+08:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>https://blog.5a6c.me/posts/v2ray-subscribe-to-config/</loc>
+    <lastmod>2019-10-02T15:21:35+08:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>https://blog.5a6c.me/</loc>
+    <lastmod>2019-10-02T15:21:35+08:00</lastmod>
+  </url>
+  
+  <url>
     <loc>https://blog.5a6c.me/posts/jiandan-bot/</loc>
     <lastmod>2019-08-31T13:15:23+08:00</lastmod>
   </url>
   
   <url>
-    <loc>https://blog.5a6c.me/posts/</loc>
-    <lastmod>2019-08-31T13:15:23+08:00</lastmod>
-  </url>
-  
-  <url>
-    <loc>https://blog.5a6c.me/tags/</loc>
-    <lastmod>2019-08-31T13:15:23+08:00</lastmod>
-  </url>
-  
-  <url>
     <loc>https://blog.5a6c.me/tags/telegram/</loc>
-    <lastmod>2019-08-31T13:15:23+08:00</lastmod>
-  </url>
-  
-  <url>
-    <loc>https://blog.5a6c.me/</loc>
     <lastmod>2019-08-31T13:15:23+08:00</lastmod>
   </url>
   

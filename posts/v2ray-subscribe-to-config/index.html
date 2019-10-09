@@ -1,0 +1,402 @@
+<!DOCTYPE html>
+<html lang="zh-cn" >
+<head>
+  <meta charset="utf-8"/>
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+
+  
+  <meta name="author"
+        content="zi0n"/>
+
+  
+  <meta name="description" content="1.请求并解码 大多数订阅链接都是base64编码过的, 所以首先使用net/http中的Get()方法请求订阅链接, 获得base64编码后进行"/>
+  
+
+  
+  
+  <meta name="keywords" content="V2ray"/>
+  
+
+  
+  <link rel="canonical" href="https://blog.5a6c.me/posts/v2ray-subscribe-to-config/"/>
+
+  
+
+  <title>将 V2ray 订阅链接转换为 config 文件 &middot; 无聊博客</title>
+
+  <link rel="shortcut icon" href="https://blog.5a6c.me/images/favicon.ico"/>
+  <link rel="stylesheet" href="https://blog.5a6c.me/css/animate.min.css"/>
+  <link rel="stylesheet" href="https://blog.5a6c.me/css/remixicon.css"/>
+  <link rel="stylesheet" href="https://blog.5a6c.me/css/zozo.css"/>
+  <link rel="stylesheet" href="https://blog.5a6c.me/css/highlight.css"/>
+
+  
+  
+</head>
+
+<body>
+<div class="main animated">
+  <div class="nav_container animated fadeInDown">
+  <div class="site_nav" id="site_nav">
+    <ul>
+      
+      <li>
+        <a href="/">首页</a>
+      </li>
+      
+      <li>
+        <a href="/tags/">标签</a>
+      </li>
+      
+      <li>
+        <a href="/about/">关于</a>
+      </li>
+      
+    </ul>
+  </div>
+  
+</div>
+
+  <div class="header animated fadeInDown">
+  <div class="site_title_container">
+    <div class="site_title">
+      <h1>
+        <a href="https://blog.5a6c.me/">
+          <span>无聊博客</span>
+          <img src="https://blog.5a6c.me/images/logo.svg"/>
+        </a>
+      </h1>
+    </div>
+    <div class="description">
+      <p class="sub_title">一个菜鸡curd boy的博客</p>
+      <div class="my_socials">
+        
+        
+        <a href="https://github.com/zigitn" title="github" target="_blank"><i class="remixicon-github-fill"></i></a>
+        
+        
+        
+      </div>
+    </div>
+  </div>
+</div>
+
+  <div class="content">
+    <div class="post_page">
+      <div class="post animated fadeInDown">
+        <div class="post_title post_detail_title">
+          <h2><a href='/posts/v2ray-subscribe-to-config/'>将 V2ray 订阅链接转换为 config 文件</a></h2>
+          <span class="date">2019.10.02</span>
+        </div>
+        <div class="post_content markdown">
+
+<h2 id="1-请求并解码">1.请求并解码</h2>
+
+<p>大多数订阅链接都是base64编码过的, 所以首先使用net/http中的Get()方法请求订阅链接, 获得base64编码后进行解码, 得到vmess://xxx格式的订阅链接</p>
+
+<p>简单写一个方法测试一下:</p>
+
+<pre><code class="language-golang">func getSubscribe(link string) {
+	resp, err := http.Get(link)
+	if err != nil {
+		log.Println(err)
+	}
+	defer resp.Body.Close()
+	body, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		log.Println(err)
+	}
+	res, err:= base64.StdEncoding.DecodeString(string(body))
+	if err != nil {
+		log.Println(err)
+	}
+	fmt.Println(string(res))
+}
+</code></pre>
+
+<p>发现可以成功请求并解码得到正确订阅链接, 但是会报错(1024非真实数字):</p>
+
+<pre><code class="language-bash"> illegal base64 data at input byte 1024  
+</code></pre>
+
+<p>经过查询, 该错误可能是因为这串Base64是 <a href="https://tools.ietf.org/html/rfc4648#page-7">base64url</a>, 而<a href="https://godoc.org/encoding/base64#RawURLEncoding">golang源码中也提到</a>, 解码这种base64应该使用 RawURLEncoding</p>
+
+<pre><code class="language-golang">// RawURLEncoding is the unpadded alternate base64 encoding defined in RFC 4648.
+// It is typically used in URLs and file names.
+// This is the same as URLEncoding but omits padding characters.
+var RawURLEncoding = URLEncoding.WithPadding(NoPadding)
+</code></pre>
+
+<p>所以只要把StdEncoding改为RawURLEncoding即可</p>
+
+<p>流程没问题了, 重写一下, 使用NewDecoder()直接decode resp.Body后返回一个bytes.Buffer, 方便进行进一步处理</p>
+
+<pre><code class="language-golang">func getSubscribe(link string) *bytes.Buffer {
+	resp, err := http.Get(link)
+	if err != nil || resp.StatusCode != http.StatusOK {
+		log.Panic(err) //请求错误, 不应该继续向下执行, panic掉
+	}
+	defer resp.Body.Close()
+	//将数据放入一个 bytes.Buffer 中, 方便操作
+	resBuffer := new(bytes.Buffer)
+	_, _ = resBuffer.ReadFrom(base64.NewDecoder(base64.RawURLEncoding, resp.Body))
+	return resBuffer
+}
+</code></pre>
+
+<h2 id="2-处理vmess-链接">2.处理vmess://链接</h2>
+
+<p>然后开始处理所有的vmess://格式的链接, 将上面得到的buffer传进来, 按行分割之后, 再来一次base64解码, 然后反序列化, 返回一个struct数组, 方便后续使用</p>
+
+<pre><code class="language-golang">func encodeVmessLinks(b *bytes.Buffer) (resStruct []V2rayConfig) {
+	for {
+		link, err := b.ReadString('\n')
+		if err != nil {
+			if err == io.EOF { //已经读取了所有vmess链接
+				break
+			}
+			log.Println(err)
+			continue
+		}
+		res, err := base64.StdEncoding.DecodeString(link[8:])		//截断&quot;vmess://&quot;
+		if err != nil {
+			log.Println(err)
+			return
+		}
+		var tmpStruct V2rayConfig
+		err = json.Unmarshal(res, &amp;tmpStruct)
+		if err != nil {
+			log.Println(err)
+			return
+		}
+		resStruct = append(resStruct, tmpStruct)
+	}
+	return
+}
+</code></pre>
+
+<p>另外这里本来写了一个多线程的版本, 结果<del>害我浪费半个多小时</del>速度反而没有单线程快&hellip;&hellip;看来是这种小任务起goroutine不太划算, 有起goroutine的时间都处理完了, 遂放弃</p>
+
+<h2 id="3-测试延迟">3.测试延迟</h2>
+
+<p>开始想着可不可以调用v2ray来做延迟测试, 想了想感觉有点难搞, <del>咕咕咕</del>以后有空再说, 就退而求其次使用直接ping的方法做, 开始直接用的是<a href="https://github.com/sparrc/go-ping">go-ping</a>这个库:</p>
+
+<pre><code class="language-golang">func pingAndPrint(AllVmessStruct []V2rayConfig) {
+	var wg sync.WaitGroup
+	for key, value := range AllVmessStruct {
+		wg.Add(1)
+		go func(k int, v V2rayConfig) {
+			pinger, err := ping.NewPinger(v.Add)
+			if err != nil {
+				panic(err)
+			}
+			pinger.Count = 5
+			pinger.Timeout = 5 * time.Second
+			pinger.Interval = 100 * time.Millisecond
+			pinger.Run()
+			stats := pinger.Statistics()
+			fmt.Printf(&quot;[%02d]:%-40s| 最低延迟:%-12s 最高延迟:%-12s 丢包率%v%% \n&quot;,
+				k,
+				v.Ps,
+				stats.MinRtt.Round(time.Millisecond).String(),	//抛弃小数点后的位数
+				stats.MaxRtt.Round(time.Millisecond).String(),
+				stats.PacketLoss)
+			wg.Done()
+		}(key, value)
+	}
+	wg.Wait()
+}
+</code></pre>
+
+<p>这里给每一个ping都开了一个goroutine, 一方面可以快点搞完, 另一方面也可以顺便按照速度来排序, 不过有个缺点就是节点很多的情况下得往上滚一下才能看到速度最快的几个节点</p>
+
+<p>还有一个要注意的细节是在for循坏内使用go func要传参, 不然的话只能取到第一个值, 闭包内取外部函数的参数的时候取的是地址, 而不是调用闭包时的参数值</p>
+
+<pre><code class="language-golang">	// 例如想要起goroutine来处理一个slice
+	tmp := []string{&quot;one&quot;, &quot;two&quot;, &quot;three&quot;}
+	
+	//错误写法,三次输出均为&quot;0 one&quot;
+	for key_outside, value_outside := range tmp {
+		go func() {
+			fmt.Println(key_outside, value_outside)
+		}()
+	}
+	
+	//正确写法
+	tmp := []string{&quot;one&quot;, &quot;two&quot;, &quot;three&quot;}
+	for key_outside, value_outside := range tmp {
+		go func(key_inside int, value_inside string) {
+			fmt.Println(key_inside, value_inside)
+		}(key, value)
+	}
+</code></pre>
+
+<p>以及 go-ping 库的作者在README中写了<a href="https://github.com/sparrc/go-ping#note-on-linux-support">在Linux上使用会遇到权限问题</a>:</p>
+
+<pre><code class="language-bash">Error listening for ICMP packets: socket: permission denied
+</code></pre>
+
+<p>他在Github中给出的解决方法是执行</p>
+
+<pre><code class="language-bash">sudo sysctl -w net.ipv4.ping_group_range=&quot;0   2147483647&quot;
+</code></pre>
+
+<p>经过测试之后, 发现只要将用户的group写进去就可以了, 不需要这么大的范围:</p>
+
+<pre><code class="language-bash">sudo sysctl -w net.ipv4.ping_group_range='1000 1000'
+</code></pre>
+
+<p>然而, 在已经实现这部分之后发现这个命令只能管用一次, 重启就不得行了, 要么就得以root权限运行程序, 感觉十分不优雅, 经过一番查找之后, 受<a href="https://stackoverflow.com/a/42227115">stack overflow上的这个回答</a>的启发, 感觉应该可以通过net包里面的<a href="https://golang.org/pkg/net/#DialTimeout">DialTimeout</a>函数来实现对服务器延迟的检测, 验证一下:</p>
+
+<pre><code class="language-golang">func main() {
+	t1 := time.Now()
+	net.DialTimeout(&quot;tcp&quot;, &quot;54.222.60.252:80&quot;, 5 * time.Second)
+	fmt.Println(&quot;耗时:&quot;, time.Since(t1))
+}
+</code></pre>
+
+<p>输出:</p>
+
+<pre><code class="language-bash">耗时: 26.1034ms
+</code></pre>
+
+<p>确实可以实现, 于是重写测速部分的逻辑:</p>
+
+<pre><code class="language-golang">func (node *nodeConfig) pingAndPrint(wg *sync.WaitGroup, num int, index int) {
+	defer wg.Done()
+
+	minTime := 3000 * time.Millisecond
+	maxTime := 0 * time.Millisecond
+	lose := 0
+	recv := 0
+	for i := 0; i &lt; num; i++ {
+		t := time.Now()
+		_, err := net.DialTimeout(&quot;tcp&quot;, node.Add+&quot;:&quot;+node.Port, 2*time.Second)
+		tmpTime := time.Since(t)
+		if err != nil {
+			lose++
+		} else {
+			recv++
+			if tmpTime &lt; minTime {
+				minTime = tmpTime
+			}
+			if tmpTime &gt; maxTime {
+				maxTime = tmpTime
+			}
+		}
+	}
+	fmt.Printf(&quot;[%-2v]%-40s| 最低延迟:%-7s 最高延迟:%-7s 丢包%v/%v\n&quot;,
+		index,
+		node.Ps,
+		minTime.Round(time.Millisecond).String(), //抛弃小数点后的位数
+		maxTime.Round(time.Millisecond).String(),
+		lose,
+		recv)
+}
+</code></pre>
+
+<p>大功告成, 测试之后, 这个方法和直接ping的结果是非常接近的</p>
+
+<h2 id="4-选择节点">4.选择节点</h2>
+
+<p>最开始使用很原始的输入编号然后选择的写法, 想了想应该有现成的轮子, Github一找, 果然找到了这个: <a href="https://github.com/AlecAivazis/survey">survey</a>, 支持单选多选,挺好用的, 然而得把所有的节点都给传进去才行, 再一番尝试之后还是放弃了, 这个库虽然还算好用, 但是有几个缺点, 一是选项只能是[]string, 然后选择结果也是一个[]string, 并不灵活, 我还需要用一个map来存节点名字和配置的对应关系, 二是选择完之后他会输出选择的选项, 没办法关掉, 有点丑, 于是最后还是回到手动输入节点的方式来实现了:</p>
+
+<pre><code class="language-golang">	fmt.Print(&quot;请输入要选择的节点编号,以空格分割,回车结束: &quot;)
+	scanner := bufio.NewScanner(os.Stdin)
+	scanner.Scan()
+	selectResult := numbers(scanner.Text())
+</code></pre>
+
+<h2 id="5-生成config-json文件">5.生成config.json文件</h2>
+
+<p>这部分倒是最简单的部分, 写struct然后输出就行了, 就是生成struct的过程不太优雅, 不过已经可以用了, 就懒得再折腾了</p>
+
+<h2 id="6-总结">6.总结</h2>
+
+<p>这个小程序共计写了六七个小时, 不过代码写的十分不优雅, 所有东西都堆在main里面, 等啥时候有空了再优化优化吧, 而且写的这个样子我感觉随便换一个机场的配置文件可能就用不了了&hellip;&hellip;优化的事情以后再说, 溜了溜了</p>
+</div>
+        <div class="post_footer">
+          
+          <div class="meta">
+            <div class="info">
+              <span class="field tags">
+                <i class="remixicon-stack-line"></i>
+                
+                <a href="https://blog.5a6c.me/tags/golang/">golang</a>
+                
+              </span>
+            </div>
+          </div>
+          
+        </div>
+      </div>
+      
+      
+      
+<div class="doc_comments">
+  <div class="comments_block_title">发表评论</div>
+  <div id="vcomments"></div>
+</div>
+
+<link rel="stylesheet" href="https://blog.5a6c.me/css/comments.css"/>
+<script src="//cdn1.lncld.net/static/js/3.0.4/av-min.js"></script>
+<script src='//unpkg.com/valine/dist/Valine.min.js'></script>
+
+<script type="text/javascript">
+new Valine({
+  el: '#vcomments',
+  appId: 'mDgxCnOTJRgRswiXMfHRr3cw-MdYXbMMI',
+  appKey: 'DQNFWQQc0xH2cBclBdoCNnnl',
+  placeholder: ' ',
+  visitor: 'true',
+})
+</script>
+
+      
+    </div>
+  </div>
+  <a id="back_to_top" href="#" class="back_to_top"><span>△</span></a>
+</div>
+<footer class="footer">
+  <div class="firends_links">
+   <a >友情链接:</a>
+   <a href="https://blog.de-conf.xyz">尘埃</a>
+   <a href="https://louisnie.github.io/">louisnie</a>
+  </div>
+  <div class="powered_by">
+    <a href="https://github.com/imzok/hugo-theme-zozo"> Theme based on zozo, </a>
+    <a href="https://gohugo.io/">Powered by Hugo.</a>
+  </div>
+
+</footer>
+
+
+
+<script src="https://blog.5a6c.me/js/jquery-3.3.1.min.js"></script>
+<script src="https://blog.5a6c.me/js/zozo.js"></script>
+<script src="https://blog.5a6c.me/js/highlight.pack.js"></script>
+<link  href="https://blog.5a6c.me/css/fancybox.min.css" rel="stylesheet">
+<script src="https://blog.5a6c.me/js/fancybox.min.js"></script>
+
+<script>hljs.initHighlightingOnLoad()</script>
+
+
+
+
+<script type="application/javascript">
+var doNotTrack = false;
+if (!doNotTrack) {
+	window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)};ga.l=+new Date;
+	ga('create', 'UA-144516028-1', 'auto');
+	
+	ga('send', 'pageview');
+}
+</script>
+<script async src='https://www.google-analytics.com/analytics.js'></script>
+
+
+
+
+</body>
+</html>

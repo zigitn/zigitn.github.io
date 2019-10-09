@@ -6,10 +6,19 @@
     <description>Recent content on 无聊博客</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>zh-cn</language>
-    <lastBuildDate>Sat, 31 Aug 2019 13:15:23 +0800</lastBuildDate>
+    <lastBuildDate>Wed, 02 Oct 2019 15:21:35 +0800</lastBuildDate>
     
 	<atom:link href="https://blog.5a6c.me/index.xml" rel="self" type="application/rss+xml" />
     
+    
+    <item>
+      <title>将 V2ray 订阅链接转换为 config 文件</title>
+      <link>https://blog.5a6c.me/posts/v2ray-subscribe-to-config/</link>
+      <pubDate>Wed, 02 Oct 2019 15:21:35 +0800</pubDate>
+      
+      <guid>https://blog.5a6c.me/posts/v2ray-subscribe-to-config/</guid>
+      <description>1.请求并解码 大多数订阅链接都是base64编码过的, 所以首先使用net/http中的Get()方法请求订阅链接, 获得base64编码后进行</description>
+    </item>
     
     <item>
       <title>Jiandan Bot:一个煎蛋爬虫 &#43; telegram bot</title>

@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="zh-cn" >
+<head>
+  <meta charset="utf-8"/>
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+
+  
+  <meta name="author"
+        content="zi0n"/>
+
+  
+  <meta name="description" content="最近换了一个新手机, 因为还不想 root, 所以自带的一些没用的 app 以及手机厂商用来跟踪信息的 app 很是烦人, Google 一番之后找到了一个很方便的方法, 记录一下备忘 PS:"/>
+  
+
+  
+  
+  <meta name="keywords" content="adb, Android"/>
+  
+
+  
+  <link rel="canonical" href="https://blog.5a6c.me/posts/uninstall-pre-install-app-without-root/"/>
+
+  
+
+  <title>使用adb卸载Android预装app与恢复方法(无需root) &middot; 无聊博客</title>
+
+  <link rel="shortcut icon" href="https://blog.5a6c.me/images/favicon.ico"/>
+  <link rel="stylesheet" href="https://blog.5a6c.me/css/animate.min.css"/>
+  <link rel="stylesheet" href="https://blog.5a6c.me/css/remixicon.css"/>
+  <link rel="stylesheet" href="https://blog.5a6c.me/css/zozo.css"/>
+  <link rel="stylesheet" href="https://blog.5a6c.me/css/highlight.css"/>
+
+  
+  
+</head>
+
+<body>
+<div class="main animated">
+  <div class="nav_container animated fadeInDown">
+  <div class="site_nav" id="site_nav">
+    <ul>
+      
+      <li>
+        <a href="/">首页</a>
+      </li>
+      
+      <li>
+        <a href="/tags/">标签</a>
+      </li>
+      
+      <li>
+        <a href="/about/">关于</a>
+      </li>
+      
+    </ul>
+  </div>
+  
+</div>
+
+  <div class="header animated fadeInDown">
+  <div class="site_title_container">
+    <div class="site_title">
+      <h1>
+        <a href="https://blog.5a6c.me/">
+          <span>无聊博客</span>
+          <img src="https://blog.5a6c.me/images/logo.svg"/>
+        </a>
+      </h1>
+    </div>
+    <div class="description">
+      <p class="sub_title">一个菜鸡curd boy的博客</p>
+      <div class="my_socials">
+        
+        
+        <a href="https://github.com/zigitn" title="github" target="_blank"><i class="remixicon-github-fill"></i></a>
+        
+        
+        
+      </div>
+    </div>
+  </div>
+</div>
+
+  <div class="content">
+    <div class="post_page">
+      <div class="post animated fadeInDown">
+        <div class="post_title post_detail_title">
+          <h2><a href='/posts/uninstall-pre-install-app-without-root/'>使用adb卸载Android预装app与恢复方法(无需root)</a></h2>
+          <span class="date">2019.11.17</span>
+        </div>
+        <div class="post_content markdown">
+
+<p>最近换了一个新手机, 因为还不想 root, 所以自带的一些没用的 app 以及手机厂商用来跟踪信息的 app 很是烦人, Google 一番之后找到了一个很方便的方法, 记录一下备忘</p>
+
+<p>PS: 我的系统版本为 Android 10, 其他版本不知道是否适用.</p>
+
+<h2 id="搜索包名">搜索包名</h2>
+
+<p>可以使用adb shell pm 的 list 命令, 配合 grep 使用关键词获取包名</p>
+
+<pre><code class="language-shell">adb shell pm list packages|grep &lt;keyword&gt;
+</code></pre>
+
+<h2 id="删除app">删除app</h2>
+
+<pre><code class="language-shell">adb shell pm uninstall --user 0 -k &lt;package.name&gt;
+</code></pre>
+
+<p>其中 &ndash; user 0 参数是必须的, 它告诉系统仅为当前用户(用户 id 默认为0)卸载该app</p>
+
+<p>-k参数代表保留app的数据, 经过测试这个参数加不加都可以顺利卸载</p>
+
+<h2 id="后悔药-恢复app">后悔药&ndash;恢复app</h2>
+
+<pre><code class="language-shell">adb shell cmd package install-existing &lt;package.name&gt;
+</code></pre>
+
+<p>因为上一步中, 仅仅是为当前用户卸载, 实际上预装 app 的文件还存在在 system 分区中,  所以我们可以让已经卸载掉的 app 恢复, 也因为如此, 如果忘记了包名, 还可以用第一步中的搜索方法查到, 或着使用 history 命令查看</p>
+</div>
+        <div class="post_footer">
+          
+          <div class="meta">
+            <div class="info">
+              <span class="field tags">
+                <i class="remixicon-stack-line"></i>
+                
+                <a href="https://blog.5a6c.me/tags/adb/">adb</a>
+                
+                <a href="https://blog.5a6c.me/tags/without-root/">without root</a>
+                
+              </span>
+            </div>
+          </div>
+          
+        </div>
+      </div>
+      
+      
+      
+<div class="doc_comments">
+  <div class="comments_block_title">发表评论</div>
+  <div id="vcomments"></div>
+</div>
+
+<link rel="stylesheet" href="https://blog.5a6c.me/css/comments.css"/>
+<script src="//cdn1.lncld.net/static/js/3.0.4/av-min.js"></script>
+<script src='//unpkg.com/valine/dist/Valine.min.js'></script>
+
+<script type="text/javascript">
+new Valine({
+  el: '#vcomments',
+  appId: 'mDgxCnOTJRgRswiXMfHRr3cw-MdYXbMMI',
+  appKey: 'DQNFWQQc0xH2cBclBdoCNnnl',
+  placeholder: ' ',
+  visitor: 'true',
+})
+</script>
+
+      
+    </div>
+  </div>
+  <a id="back_to_top" href="#" class="back_to_top"><span>△</span></a>
+</div>
+<footer class="footer">
+  <div class="firends_links">
+   <a >友情链接:</a>
+   <a href="https://blog.de-conf.xyz">尘埃</a>
+   <a href="https://louisnie.github.io/">louisnie</a>
+  </div>
+  <div class="powered_by">
+    <a href="https://github.com/imzok/hugo-theme-zozo"> Theme based on zozo, </a>
+    <a href="https://gohugo.io/">Powered by Hugo.</a>
+  </div>
+
+</footer>
+
+
+
+<script src="https://blog.5a6c.me/js/jquery-3.3.1.min.js"></script>
+<script src="https://blog.5a6c.me/js/zozo.js"></script>
+<script src="https://blog.5a6c.me/js/highlight.pack.js"></script>
+<link  href="https://blog.5a6c.me/css/fancybox.min.css" rel="stylesheet">
+<script src="https://blog.5a6c.me/js/fancybox.min.js"></script>
+
+<script>hljs.initHighlightingOnLoad()</script>
+
+
+
+
+<script type="application/javascript">
+var doNotTrack = false;
+if (!doNotTrack) {
+	window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)};ga.l=+new Date;
+	ga('create', 'UA-144516028-1', 'auto');
+	
+	ga('send', 'pageview');
+}
+</script>
+<script async src='https://www.google-analytics.com/analytics.js'></script>
+
+
+
+
+</body>
+</html>

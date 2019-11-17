@@ -3,27 +3,42 @@
   xmlns:xhtml="http://www.w3.org/1999/xhtml">
   
   <url>
+    <loc>https://blog.5a6c.me/tags/adb/</loc>
+    <lastmod>2019-11-17T12:58:19+08:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>https://blog.5a6c.me/posts/</loc>
+    <lastmod>2019-11-17T12:58:19+08:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>https://blog.5a6c.me/tags/</loc>
+    <lastmod>2019-11-17T12:58:19+08:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>https://blog.5a6c.me/tags/without-root/</loc>
+    <lastmod>2019-11-17T12:58:19+08:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>https://blog.5a6c.me/posts/uninstall-pre-install-app-without-root/</loc>
+    <lastmod>2019-11-17T12:58:19+08:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>https://blog.5a6c.me/</loc>
+    <lastmod>2019-11-17T12:58:19+08:00</lastmod>
+  </url>
+  
+  <url>
     <loc>https://blog.5a6c.me/tags/golang/</loc>
     <lastmod>2019-10-02T15:21:35+08:00</lastmod>
   </url>
   
   <url>
-    <loc>https://blog.5a6c.me/posts/</loc>
-    <lastmod>2019-10-02T15:21:35+08:00</lastmod>
-  </url>
-  
-  <url>
-    <loc>https://blog.5a6c.me/tags/</loc>
-    <lastmod>2019-10-02T15:21:35+08:00</lastmod>
-  </url>
-  
-  <url>
     <loc>https://blog.5a6c.me/posts/v2ray-subscribe-to-config/</loc>
-    <lastmod>2019-10-02T15:21:35+08:00</lastmod>
-  </url>
-  
-  <url>
-    <loc>https://blog.5a6c.me/</loc>
     <lastmod>2019-10-02T15:21:35+08:00</lastmod>
   </url>
   

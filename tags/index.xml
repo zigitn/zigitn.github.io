@@ -6,10 +6,28 @@
     <description>Recent content in Tags on 无聊博客</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>zh-cn</language>
-    <lastBuildDate>Wed, 02 Oct 2019 15:21:35 +0800</lastBuildDate>
+    <lastBuildDate>Sun, 17 Nov 2019 12:58:19 +0800</lastBuildDate>
     
 	<atom:link href="https://blog.5a6c.me/tags/index.xml" rel="self" type="application/rss+xml" />
     
+    
+    <item>
+      <title>adb</title>
+      <link>https://blog.5a6c.me/tags/adb/</link>
+      <pubDate>Sun, 17 Nov 2019 12:58:19 +0800</pubDate>
+      
+      <guid>https://blog.5a6c.me/tags/adb/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>without root</title>
+      <link>https://blog.5a6c.me/tags/without-root/</link>
+      <pubDate>Sun, 17 Nov 2019 12:58:19 +0800</pubDate>
+      
+      <guid>https://blog.5a6c.me/tags/without-root/</guid>
+      <description></description>
+    </item>
     
     <item>
       <title>golang</title>

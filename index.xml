@@ -6,10 +6,19 @@
     <description>Recent content on 无聊博客</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>zh-cn</language>
-    <lastBuildDate>Wed, 02 Oct 2019 15:21:35 +0800</lastBuildDate>
+    <lastBuildDate>Sun, 17 Nov 2019 12:58:19 +0800</lastBuildDate>
     
 	<atom:link href="https://blog.5a6c.me/index.xml" rel="self" type="application/rss+xml" />
     
+    
+    <item>
+      <title>使用adb卸载Android预装app与恢复方法(无需root)</title>
+      <link>https://blog.5a6c.me/posts/uninstall-pre-install-app-without-root/</link>
+      <pubDate>Sun, 17 Nov 2019 12:58:19 +0800</pubDate>
+      
+      <guid>https://blog.5a6c.me/posts/uninstall-pre-install-app-without-root/</guid>
+      <description>最近换了一个新手机, 因为还不想 root, 所以自带的一些没用的 app 以及手机厂商用来跟踪信息的 app 很是烦人, Google 一番之后找到了一个很方便的方法, 记录一下备忘 PS:</description>
+    </item>
     
     <item>
       <title>将 V2ray 订阅链接转换为 config 文件</title>

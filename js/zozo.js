@@ -29,10 +29,26 @@ $(document).ready((function (_this) {
 $(document).ready((function (_this) {
   return function () {
     let nav,icon
-    icon = $('#menu_icon')
     nav = $('#site_nav')
     icon.click(function () {
       nav.slideToggle(250)
     })
   }
 })(this))
+
+// FancyBox
+$('[data-fancybox="gallery"]').fancybox({
+  arrows: false,
+  infobar: false,
+  buttons: [],
+  clickContent: "close",
+  autoFocus: false,
+  backFocus: false,
+  wheel: false,
+  mobile: {
+    clickContent: "close",
+    clickSlide: "close",
+    dblclickContent: false,
+    dblclickSlide: false
+  },
+});

@@ -1,14 +1,29 @@
 @charset "UTF-8";
 /*basic styles starts*/
-
 html {
   background-color: #f7f7f7;
   -webkit-font-smoothing: antialiased;
 }
 
+html::-webkit-scrollbar {
+  width: 13px;
+}
+
+html::-webkit-scrollbar-button {
+  display: none;
+}
+
+html::-webkit-scrollbar-thumb {
+  min-height: 16px;
+  background-color: #999999;
+  background-clip: padding-box;
+  border: 3px solid #fdfdfd;
+  border-radius: 5px;
+}
+
 body {
   color: #333333;
-  font-family: 'source-han-sans-simplified-c', 'Source Sans Pro', 'Helvetica Neue', Arial, sans-serif;
+  font-family: "Helvetica Neue", Arial, "Noto Sans", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
   font-size: 16px;
   width: 100%;
   background-color: #f7f7f7;
@@ -53,10 +68,11 @@ hr {
 /*basic styles ends*/
 .main {
   background: #ffffff;
-  -webkit-box-shadow: 0 10px 20px 0 rgba(236, 236, 236, 0.86);
-          box-shadow: 0 10px 20px 0 rgba(236, 236, 236, 0.86);
+  -webkit-box-shadow: 0 20px 30px 0 rgba(224, 224, 224, 0.86);
+          box-shadow: 0 20px 30px 0 rgba(224, 224, 224, 0.86);
   width: 800px;
   margin: 60px auto 0;
+  border-radius: 14px;
 }
 
 .content {
@@ -74,12 +90,13 @@ hr {
   width: 740px;
   height: 3rem;
   margin: 0 auto;
-  padding: 20px 0;
+  padding: 40px 0 0 0;
 }
 
 .nav_container .menu_icon {
   padding: 10px;
   float: right;
+  display: none;
 }
 
 .nav_container .menu_icon a {
@@ -115,7 +132,7 @@ hr {
 
 .header {
   width: 720px;
-  padding: 50px 0 140px 0;
+  padding: 20px 0 100px 0;
   margin: 0 auto;
   background-size: cover;
 }
@@ -144,7 +161,7 @@ hr {
 }
 
 .header .site_title_container .site_title a span {
-  display: none;
+  display: block;
 }
 
 .header .site_title_container .site_title a:hover {
@@ -190,10 +207,6 @@ hr {
   margin-top: 50px;
 }
 
-.post .post_title {
-  padding-bottom: 16px;
-}
-
 .post .post_title h2 {
   letter-spacing: 1px;
   font-size: 1.4rem;
@@ -207,7 +220,7 @@ hr {
   text-decoration: none;
   letter-spacing: 1px;
   color: #1f1f1f;
-  font-size: 1.4rem;
+  font-size: 1.5rem;
   line-height: 28px;
 }
 
@@ -231,11 +244,14 @@ hr {
 
 .post .post_content {
   word-break: normal;
+  margin-top: 20px;
 }
 
 .post .post_content p {
-  line-height: 1.6em;
+  text-indent:30px;
+  line-height: 2em;
   letter-spacing: 0.2px;
+  margin-bottom: 20px;
 }
 
 .post .post_content a {
@@ -249,7 +265,7 @@ hr {
 }
 
 .post .post_footer {
-  padding: 20px 0 40px 0;
+  padding: 20px 0;
   border-bottom: 1px solid #f3f3f3;
 }
 
@@ -307,12 +323,23 @@ hr {
   padding: 0;
 }
 
+.doc_comments {
+  font-size: 14px;
+  color: #383838;
+  margin-top: 30px;
+  padding: 35px 0 45px;
+}
+
+.doc_comments .comments_block_title {
+  color: #000000;
+}
+
 .footer {
   clear: both;
   max-width: 780px;
   text-align: center;
   font-size: 12px;
-  padding: 40px 0;
+  padding: 30px 0;
   margin: 0 auto;
 }
 
@@ -325,27 +352,34 @@ hr {
   color: #1f1f1f;
 }
 
+.footer .firends_links {
+  color: #aaaaaa;
+  margin: 0 0 11px 0;
+  font-size: 11px;
+}
+
 .footer .powered_by {
+  color: #bbbbbb;
   margin: 0;
   font-size: 11px;
 }
 
 .footer .powered_by a {
-  color: #cccccc;
-  margin: 0 2px;
+  color: #bbbbbb;
+  margin: 0 0px;
 }
 
 .footer .powered_by a:hover {
   color: #1f1f1f;
 }
 
-.footer .footer_slogan {
+/* .footer .footer_slogan {
   padding-top: 25px;
   padding-bottom: 10px;
   color: #000000;
   font-size: 16px;
   letter-spacing: 1px;
-}
+} */
 
 /*for archive*/
 .list_with_title {
@@ -417,7 +451,7 @@ hr {
 }
 
 .markdown {
-  line-height: 1.6em;
+  line-height: 1.8em;
   word-wrap: break-word;
   word-break: normal;
   overflow-wrap: break-word;
@@ -435,7 +469,7 @@ hr {
 .markdown h4,
 .markdown h5,
 .markdown h6 {
-  margin: 2.5em 0 1.3em 0;
+  margin: 20px 0 20px 0;
   color: #000000;
 }
 
@@ -457,17 +491,16 @@ hr {
 
 .markdown pre,
 .markdown code {
-  font-family: 'mononoki';
-  line-height: 1.1em;
-  font-size: 1em;
-  background: #f8f8f8 !important;
+  font-family: Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", "mononoki";
+  font-size: 0.9em;
+  background: #eeeeee;
   border: none;
+  white-space: pre;
+  border-radius: 4px;
 }
 
 .markdown pre {
-  margin-top: 1.2em;
-  margin-bottom: 2.2em;
-  padding: 15px 20px;
+  padding: 16px;
   display: block;
   overflow: auto;
   white-space: pre;
@@ -475,7 +508,7 @@ hr {
 }
 
 .markdown code {
-  color: #666666;
+  color: #2c2c2c;
   padding: 4px 5px;
   border-radius: 2px;
   white-space: nowrap;
@@ -483,7 +516,8 @@ hr {
 
 .markdown pre code {
   padding: 0;
-  color: #555555;
+  color: #2c2c2c;
+  white-space: pre;
 }
 
 .markdown blockquote p {
@@ -555,6 +589,20 @@ hr {
   height: auto;
 }
 
+table {
+  border-collapse: collapse;
+  border-spacing: 0;
+}
+
+table th {
+  background-color: #f6f8fa;
+}
+
+table th, table td {
+  padding: 10px 20px;
+  border: 1px solid #dfe2e5;
+}
+
 a.back_to_top {
   text-decoration: none;
   position: fixed;
@@ -613,6 +661,7 @@ a.back_to_top:hover span {
   .nav_container .menu_icon {
     position: fixed;
     right: 0;
+    display: block;
   }
   .back_to_top {
     display: none !important;
@@ -621,14 +670,14 @@ a.back_to_top:hover span {
 
 @media screen and (min-width: 1600px) {
   .main {
-    width: 1000px;
+    width: 1300px;
   }
   .nav_container {
-    width: 840px;
+    width: 1000px;
   }
   .header,
   .content {
-    width: 820px;
+    width: 1000px;
   }
 }
 
@@ -687,8 +736,3 @@ a.back_to_top:hover span {
 }
 
 /*animation ends*/
-/*# sourceMappingURL=zozo.css.map */
-
-div.firends_links{
-  margin-bottom: 10px;
-}

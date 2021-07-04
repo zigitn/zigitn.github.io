@@ -93,16 +93,6 @@ hr {
   padding: 40px 0 0 0;
 }
 
-.nav_container .menu_icon {
-  padding: 10px;
-  float: right;
-  display: none;
-}
-
-.nav_container .menu_icon a {
-  cursor: pointer;
-}
-
 .nav_container .site_nav {
   float: right;
 }
@@ -657,11 +647,6 @@ a.back_to_top:hover span {
   }
   .nav_container .site_nav li {
     float: none;
-  }
-  .nav_container .menu_icon {
-    position: fixed;
-    right: 0;
-    display: block;
   }
   .back_to_top {
     display: none !important;

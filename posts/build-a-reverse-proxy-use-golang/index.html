@@ -1,5 +1,5 @@
-<!doctype html><html lang=zh-cn><head><meta charset=utf-8><meta http-equiv=x-ua-compatible content="IE=edge,chrome=1"><meta name=viewport content="width=device-width,initial-scale=1"><meta name=author content="zi0n"><title>使用golang撸一个反向 socks5 代理｜无聊博客</title><meta name=description content="1.socks5代理协议 关于使用 Golang 做一个常规的 socks5 代理的文章，网上已经有很多，所以本次来尝试一种特殊情况，即在目标机器不出网的情况下，使用 Golang 实现一个反向的 socks5 隧道。 2.工具的基本原理 反向 socks5 与正向的 socks5 所不同"><meta name=keywords content="socks5,reverse proxy,red team,反弹代理,golang"><link rel="shortcut icon" href=https://blog.5a6c.me/images/favicon.ico><link rel=stylesheet type=text/css media=screen href=https://blog.5a6c.me/css/normalize.css><link rel=stylesheet type=text/css media=screen href=https://cdn.jsdelivr.net/npm/animate.css@4.1.0/animate.min.css><link rel=stylesheet type=text/css media=screen href=https://blog.5a6c.me/css/zozo.css><link rel=stylesheet type=text/css media=screen href=https://cdn.jsdelivr.net/npm/remixicon@2.5.0/fonts/remixicon.css><link rel=stylesheet type=text/css media=screen href=https://blog.5a6c.me/css/highlight.css></head><body><div class="main animate__animated animate__fadeInDown"><div class="nav_container animated fadeInDown"><div class=site_nav id=site_nav><ul><li><a href=/>Home</a></li><li><a href=/posts/>Archive</a></li><li><a href=/tags/>Tags</a></li><li><a href=/about/>About</a></li></ul></div></div><div class="header animated fadeInDown"><div class=site_title_container><div class=site_title><h1><a href=https://blog.5a6c.me/><span>无聊博客</span></a></h1></div><div class=description><p class=sub_title>a CURD boy's blog.</p><div class=my_socials><a href=https://github.com/zigitn title=github target=_blank><i class=ri-github-fill></i></a>
-<a href=https://blog.5a6c.me/index.xml type=application/rss+xml title=rss target=_blank><i class=ri-rss-fill></i></a></div></div></div></div><div class=content><div class=post_page><div class="post animate__animated animate__fadeInDown"><div class="post_title post_detail_title"><h2><a href=/posts/build-a-reverse-proxy-use-golang/>使用golang撸一个反向 socks5 代理</a></h2><span class=date>2021.07.03</span></div><div class="post_content markdown"><h1 id=1socks5代理协议>1.socks5代理协议</h1><p>关于使用 Golang 做一个常规的 socks5 代理的文章，网上已经有很多，所以本次来尝试一种特殊情况，即在目标机器不出网的情况下，使用 Golang 实现一个反向的 socks5 隧道。</p><h1 id=2工具的基本原理>2.工具的基本原理</h1><p>反向 socks5 与正向的 socks5 所不同的地方在于，socks5 服务端并不直接处于目标内网中，而是通过agent维持的长连接来将代理流量传递到目标内网中<br><img src=/images/reverse_socks5_01.png alt=原理示意图><br>如图，agent运行后，主动向server端发起长连接，每一个长连接将会承载一个socks5代理请求。<br>server端监听两个端口，其中一个是面向用户使用的socks5服务端口，另一个是与agent通信的端口。<br>在运行之后，agent会向server发起一个长连接，而server端在接收user的socks5代理连接之后，将这两个连接怼到一起就好了。</p><h1 id=3代码实现>3.代码实现</h1><h2 id=agent>agent</h2><p>agent的实现其实非常简单，这里使用了<a href=http://github.com/armon/go-socks5>这个socks5的库</a>，因为它有一个比较方便的<code>ServeConn</code>方法</p><div class=highlight><pre class=chroma><code class=language-golang data-lang=golang><span class=kn>package</span> <span class=nx>main</span>
+<!doctype html><html lang=zh-cn><head><meta charset=utf-8><meta http-equiv=x-ua-compatible content="IE=edge,chrome=1"><meta name=viewport content="width=device-width,initial-scale=1"><meta name=author content="zi0n"><title>使用golang撸一个反向 socks5 代理｜无聊博客</title><meta name=description content="1.socks5代理协议 关于使用 Golang 做一个常规的 socks5 代理的文章, 网上已经有很多, 所以本次来尝试一种特殊情况, 即在目标机器不出网的情况下, 使用 Golang 实现一个反向的 socks5 隧道. 2.工具的基本原理 反向 socks5 与正向的 socks5 所不同"><meta name=keywords content="socks5,reverse proxy,red team,反弹代理,golang"><link rel="shortcut icon" href=https://blog.5a6c.me/images/favicon.ico><link rel=stylesheet type=text/css media=screen href=https://blog.5a6c.me/css/normalize.css><link rel=stylesheet type=text/css media=screen href=https://cdn.jsdelivr.net/npm/animate.css@4.1.0/animate.min.css><link rel=stylesheet type=text/css media=screen href=https://blog.5a6c.me/css/zozo.css><link rel=stylesheet type=text/css media=screen href=https://cdn.jsdelivr.net/npm/remixicon@2.5.0/fonts/remixicon.css><link rel=stylesheet type=text/css media=screen href=https://blog.5a6c.me/css/highlight.css></head><body><div class="main animate__animated animate__fadeInDown"><div class="nav_container animated fadeInDown"><div class=site_nav id=site_nav><ul><li><a href=/>Home</a></li><li><a href=/posts/>Archive</a></li><li><a href=/tags/>Tags</a></li><li><a href=/about/>About</a></li></ul></div></div><div class="header animated fadeInDown"><div class=site_title_container><div class=site_title><h1><a href=https://blog.5a6c.me/><span>无聊博客</span></a></h1></div><div class=description><p class=sub_title>a CURD boy's blog.</p><div class=my_socials><a href=https://github.com/zigitn title=github target=_blank><i class=ri-github-fill></i></a>
+<a href=https://blog.5a6c.me/index.xml type=application/rss+xml title=rss target=_blank><i class=ri-rss-fill></i></a></div></div></div></div><div class=content><div class=post_page><div class="post animate__animated animate__fadeInDown"><div class="post_title post_detail_title"><h2><a href=/posts/build-a-reverse-proxy-use-golang/>使用golang撸一个反向 socks5 代理</a></h2><span class=date>2021.07.03</span></div><div class="post_content markdown"><h1 id=1socks5代理协议>1.socks5代理协议</h1><p>关于使用 Golang 做一个常规的 socks5 代理的文章, 网上已经有很多, 所以本次来尝试一种特殊情况, 即在目标机器不出网的情况下, 使用 Golang 实现一个反向的 socks5 隧道.</p><h1 id=2工具的基本原理>2.工具的基本原理</h1><p>反向 socks5 与正向的 socks5 所不同的地方在于, socks5 服务端并不直接处于目标内网中, 而是通过 agent 维持的长连接来将代理流量传递到目标内网中<br><img src=/images/reverse_socks5_01.png alt=原理示意图><br>如图, agent 运行后, 主动向 server 端发起长连接, 每一个长连接将会承载一个socks5代理请求.<br>server 端监听两个端口, 其中一个是面向用户使用的socks5服务端口, 另一个是与 agent 通信的端口.<br>在运行之后, agent 会向 server 发起一个长连接, 而 server 端在接收user的socks5代理连接之后, 将这两个连接怼到一起就好了.</p><h1 id=3代码实现>3.代码实现</h1><h2 id=agent>agent</h2><p>agent 的实现其实非常简单, 这里使用了<a href=http://github.com/armon/go-socks5>这个 socks5 的库</a>, 因为它有一个比较方便的<code>ServeConn</code>方法</p><div class=highlight><pre class=chroma><code class=language-golang data-lang=golang><span class=kn>package</span> <span class=nx>main</span>
 
 <span class=kn>import</span> <span class=p>(</span>
 	<span class=s>&#34;fmt&#34;</span>
@@ -9,22 +9,22 @@
 	<span class=s>&#34;github.com/armon/go-socks5&#34;</span>
 <span class=p>)</span>
 
-<span class=kd>var</span> <span class=nx>server</span> <span class=o>*</span><span class=nx>socks5</span><span class=p>.</span><span class=nx>Server</span>
+<span class=kd>var</span> <span class=nx>server</span> <span class=o>*</span><span class=nx>socks5</span><span class=p>.</span> <span class=nx>Server</span> 
 
 <span class=kd>func</span> <span class=nf>main</span><span class=p>()</span> <span class=p>{</span>
-	<span class=c1>// 起一个简单的socks5服务
+	<span class=c1>// 起一个简单的 socks5 服务
 </span><span class=c1></span>	<span class=kd>var</span> <span class=nx>err</span> <span class=kt>error</span>
-	<span class=nx>server</span><span class=p>,</span> <span class=nx>err</span> <span class=p>=</span> <span class=nx>socks5</span><span class=p>.</span><span class=nf>New</span><span class=p>(</span><span class=o>&amp;</span><span class=nx>socks5</span><span class=p>.</span><span class=nx>Config</span><span class=p>{})</span>
+	 <span class=nx>server</span> <span class=p>,</span> <span class=nx>err</span> <span class=p>=</span> <span class=nx>socks5</span><span class=p>.</span><span class=nf>New</span><span class=p>(</span><span class=o>&amp;</span><span class=nx>socks5</span><span class=p>.</span><span class=nx>Config</span><span class=p>{})</span>
 	<span class=k>if</span> <span class=nx>err</span> <span class=o>!=</span> <span class=kc>nil</span> <span class=p>{</span>
 		<span class=nb>panic</span><span class=p>(</span><span class=nx>err</span><span class=p>)</span>
 	<span class=p>}</span>
-	<span class=c1>// 不断向server发起连接请求，server的连接池满了之后，会阻塞在dial这一步
+	<span class=c1>// 不断向 server 发起连接请求, server 的连接池满了之后, 会阻塞在 dial 这一步
 </span><span class=c1></span>	<span class=k>for</span> <span class=p>{</span>
 		<span class=nx>conn</span><span class=p>,</span> <span class=nx>err</span> <span class=o>:=</span> <span class=nx>net</span><span class=p>.</span><span class=nf>Dial</span><span class=p>(</span><span class=s>&#34;tcp&#34;</span><span class=p>,</span> <span class=s>&#34;127.0.0.1:8989&#34;</span><span class=p>)</span>
 		<span class=k>if</span> <span class=nx>err</span> <span class=o>!=</span> <span class=kc>nil</span> <span class=p>{</span>
 			<span class=k>continue</span>
 		<span class=p>}</span>
-		<span class=c1>// 连接成功之后，使用socks5库处理该连接
+		<span class=c1>// 连接成功之后, 使用 socks5 库处理该连接
 </span><span class=c1></span>		<span class=k>go</span> <span class=nf>handleSocks5</span><span class=p>(</span><span class=nx>conn</span><span class=p>)</span>
 	<span class=p>}</span>
 <span class=p>}</span>
@@ -32,8 +32,8 @@
 <span class=kd>func</span> <span class=nf>handleSocks5</span><span class=p>(</span><span class=nx>conn</span> <span class=nx>net</span><span class=p>.</span><span class=nx>Conn</span><span class=p>)</span> <span class=p>{</span>
 	<span class=k>defer</span> <span class=nx>conn</span><span class=p>.</span><span class=nf>Close</span><span class=p>()</span>
 	<span class=nx>_</span> <span class=p>=</span> <span class=nx>conn</span><span class=p>.</span><span class=nf>SetDeadline</span><span class=p>(</span><span class=nx>time</span><span class=p>.</span><span class=nx>Time</span><span class=p>{})</span>
-	<span class=c1>// 使用该socks5库提供的ServeConn方法
-</span><span class=c1></span>	<span class=nx>err</span> <span class=o>:=</span> <span class=nx>server</span><span class=p>.</span><span class=nf>ServeConn</span><span class=p>(</span><span class=nx>conn</span><span class=p>)</span>
+	<span class=c1>// 使用该 socks5 库提供的 ServeConn 方法
+</span><span class=c1></span>	<span class=nx>err</span> <span class=o>:=</span>  <span class=nx>server</span> <span class=p>.</span><span class=nf>ServeConn</span><span class=p>(</span><span class=nx>conn</span><span class=p>)</span>
 	<span class=k>if</span> <span class=nx>err</span> <span class=o>!=</span> <span class=kc>nil</span> <span class=p>{</span>
 		<span class=nx>fmt</span><span class=p>.</span><span class=nf>Println</span><span class=p>(</span><span class=nx>err</span><span class=p>)</span>
 	<span class=p>}</span>
@@ -49,16 +49,16 @@
 <span class=p>)</span>
 
 <span class=kd>func</span> <span class=nf>main</span><span class=p>()</span> <span class=p>{</span>
-	<span class=c1>// 使用两个channel来暂存agent和user的连接请求
+	<span class=c1>// 使用两个 channel 来暂存 agent 和 user 的连接请求
 </span><span class=c1></span>	<span class=nx>userConnChan</span> <span class=o>:=</span> <span class=nb>make</span><span class=p>(</span><span class=kd>chan</span> <span class=nx>net</span><span class=p>.</span><span class=nx>Conn</span><span class=p>,</span> <span class=mi>10</span><span class=p>)</span>
-	<span class=nx>agentConnChan</span> <span class=o>:=</span> <span class=nb>make</span><span class=p>(</span><span class=kd>chan</span> <span class=nx>net</span><span class=p>.</span><span class=nx>Conn</span><span class=p>,</span> <span class=mi>10</span><span class=p>)</span>
-	<span class=c1>// 监听agent服务端口
-</span><span class=c1></span>	<span class=k>go</span> <span class=nf>ListenService</span><span class=p>(</span><span class=nx>agentConnChan</span><span class=p>,</span> <span class=s>&#34;127.0.0.1:8989&#34;</span><span class=p>)</span>
-	<span class=c1>// 监听user服务端口
+	 <span class=nx>agent</span> <span class=nx>ConnChan</span> <span class=o>:=</span> <span class=nb>make</span><span class=p>(</span><span class=kd>chan</span> <span class=nx>net</span><span class=p>.</span><span class=nx>Conn</span><span class=p>,</span> <span class=mi>10</span><span class=p>)</span>
+	<span class=c1>// 监听 agent 服务端口
+</span><span class=c1></span>	<span class=k>go</span> <span class=nf>ListenService</span><span class=p>(</span> <span class=nx>agent</span> <span class=nx>ConnChan</span><span class=p>,</span> <span class=s>&#34;127.0.0.1:8989&#34;</span><span class=p>)</span>
+	<span class=c1>// 监听 user 服务端口
 </span><span class=c1></span>	<span class=k>go</span> <span class=nf>ListenService</span><span class=p>(</span><span class=nx>userConnChan</span><span class=p>,</span> <span class=s>&#34;127.0.0.1:1080&#34;</span><span class=p>)</span>
-	<span class=k>for</span> <span class=nx>agentConn</span> <span class=o>:=</span> <span class=k>range</span> <span class=nx>agentConnChan</span> <span class=p>{</span>
+	<span class=k>for</span>  <span class=nx>agent</span> <span class=nx>Conn</span> <span class=o>:=</span> <span class=k>range</span>  <span class=nx>agent</span> <span class=nx>ConnChan</span> <span class=p>{</span>
 		<span class=nx>userConn</span> <span class=o>:=</span> <span class=o>&lt;-</span><span class=nx>userConnChan</span>
-		<span class=k>go</span> <span class=nf>copyConn</span><span class=p>(</span><span class=nx>userConn</span><span class=p>,</span> <span class=nx>agentConn</span><span class=p>)</span>
+		<span class=k>go</span> <span class=nf>copyConn</span><span class=p>(</span><span class=nx>userConn</span><span class=p>,</span>  <span class=nx>agent</span> <span class=nx>Conn</span><span class=p>)</span>
 	<span class=p>}</span>
 <span class=p>}</span>
 
@@ -102,7 +102,7 @@
 	<span class=p>}()</span>
 	<span class=nx>wg</span><span class=p>.</span><span class=nf>Wait</span><span class=p>()</span>
 <span class=p>}</span>
-</code></pre></div><h1 id=3效果图>3.效果图</h1><p><img src=/images/reverse_socks5_02.jpg alt=效果图></p><h1 id=4一些可以改进的地方>4.一些可以改进的地方</h1><p>可以改进的地方其实有很多，本文给出的demo只能算作一个可行性验证，如果在真实环境中使用会遇到一些问题，例如重度使用时不可避免的会遇到连接数过高的问题，socks5虽然是一个轻量化的协议，但是特征还是太过于明显，并且因为agent引用了完整的socks5实现库，体积必然不会小到哪里去。因此，如果想要改进的话，可以尝试由server来处理socks5的认证步骤，agent和server之间采用自己实现的更轻量化的协议，这样做可以：</p><ul><li>带来更小的agent体积</li><li>复用agent和server的TCP连接来更精确的控制连接数</li><li>agent和server之间可以使用UDP来通信，更加隐蔽</li></ul></div><div class=post_footer><div class=meta><div class=info><span class="field tags"><i class=ri-stack-line></i>
+</code></pre></div><h1 id=3效果图>3.效果图</h1><p><img src=/images/reverse_socks5_02.jpg alt=效果图></p><h1 id=4一些可以改进的地方>4.一些可以改进的地方</h1><p>可以改进的地方其实有很多, 本文给出的 demo 只能算作一个可行性验证, 如果在真实环境中使用会遇到一些问题, 例如重度使用时不可避免的会遇到连接数过高的问题, socks5 虽然是一个轻量化的协议, 但是特征还是太过于明显, 并且因为 agent 引用了完整的 socks5 实现库, 体积必然不会小到哪里去.因此, 如果想要改进的话, 可以尝试由 server 来处理 socks5 的认证步骤, agent 和 server 之间采用自己实现的更轻量化的协议, 这样做可以：</p><ul><li>带来更小的 agent 体积</li><li>复用 agent 和 server 的TCP连接来更精确的控制连接数</li><li>agent 和 server 之间可以使用UDP来通信, 更加隐蔽</li></ul></div><div class=post_footer><div class=meta><div class=info><span class="field tags"><i class=ri-stack-line></i>
 <a href=https://blog.5a6c.me/tags/golang/>golang</a></span></div></div></div></div><div class=doc_comments></div></div></div></div><a id=back_to_top href=# class=back_to_top><i class=ri-arrow-up-s-line></i></a><footer class=footer><div class=firends_links><span>友情链接:</span>
 <a href=https://louisnie.github.io/>louisnie</a>
 <a href=https://deconf.xyz/>deconf</a></div><div class=powered_by><span>Theme based on <a href=https://varkai.com>zozo</a>.</span>

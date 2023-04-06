@@ -1,250 +1,140 @@
-<!doctype html><html lang=zh-cn>
-<head>
-<meta charset=utf-8>
-<meta http-equiv=x-ua-compatible content="IE=edge,chrome=1">
-<meta name=viewport content="width=device-width,initial-scale=1">
-<meta name=author content="zi0n">
-<title>将 V2ray 订阅链接转换为 config 文件｜无聊博客</title>
-<meta name=description content="1.请求并解码 大多数订阅链接都是base64编码过的, 所以首先使用net/http中的Get()方法请求订阅链接, 获得base64编码后进行解码, 得到vmess://xxx格式的订阅链接 简单写一个方法">
-<meta name=keywords content="V2ray,golang">
-<link rel="shortcut icon" href=https://blog.5a6c.me/images/favicon.ico>
-<link rel=stylesheet type=text/css media=screen href=https://blog.5a6c.me/css/normalize.css>
-<link rel=stylesheet type=text/css media=screen href=https://cdn.jsdelivr.net/npm/animate.css@4.1.0/animate.min.css>
-<link rel=stylesheet type=text/css media=screen href=https://blog.5a6c.me/css/zozo.css>
-<link rel=stylesheet type=text/css media=screen href=https://cdn.jsdelivr.net/npm/remixicon@2.5.0/fonts/remixicon.css>
-<link rel=stylesheet type=text/css media=screen href=https://blog.5a6c.me/css/highlight.css>
-</head>
-<body>
-<div class="main animate__animated animate__fadeInDown">
-<div class="nav_container animated fadeInDown">
-<div class=site_nav id=site_nav>
-<ul>
-<li>
-<a href=/>Home</a>
-</li>
-<li>
-<a href=/posts/>Archive</a>
-</li>
-<li>
-<a href=/tags/>Tags</a>
-</li>
-<li>
-<a href=/about/>About</a>
-</li>
-</ul>
-</div>
-</div>
-<div class="header animated fadeInDown">
-<div class=site_title_container>
-<div class=site_title>
-<h1>
-<a href=https://blog.5a6c.me/>
-<span>无聊博客</span>
-</a>
-</h1>
-</div>
-<div class=description>
-<p class=sub_title>a CURD boy's blog.</p>
-<div class=my_socials>
-<a href=https://github.com/zigitn title=github target=_blank><i class=ri-github-fill></i></a>
-<a href=https://blog.5a6c.me/index.xml type=application/rss+xml title=rss target=_blank><i class=ri-rss-fill></i></a>
-</div>
-</div>
-</div>
-</div>
-<div class=content>
-<div class=post_page>
-<div class="post animate__animated animate__fadeInDown">
-<div class="post_title post_detail_title">
-<h2><a href=/posts/v2ray-subscribe-to-config/>将 V2ray 订阅链接转换为 config 文件</a></h2>
-<span class=date>2019.10.02</span>
-</div>
-<div class="post_content markdown"><h1 id=1请求并解码>1.请求并解码</h1>
-<p>大多数订阅链接都是base64编码过的, 所以首先使用net/http中的Get()方法请求订阅链接, 获得base64编码后进行解码, 得到vmess://xxx格式的订阅链接<br>
-简单写一个方法测试一下:</p>
-<div class=highlight><pre tabindex=0 class=chroma><code class=language-golang data-lang=golang><span class=kd>func</span> <span class=nf>getSubscribe</span><span class=p>(</span><span class=nx>link</span> <span class=kt>string</span><span class=p>)</span> <span class=p>{</span>
-	<span class=nx>resp</span><span class=p>,</span> <span class=nx>err</span> <span class=o>:=</span> <span class=nx>http</span><span class=p>.</span><span class=nf>Get</span><span class=p>(</span><span class=nx>link</span><span class=p>)</span>
-	<span class=k>if</span> <span class=nx>err</span> <span class=o>!=</span> <span class=kc>nil</span> <span class=p>{</span>
-		<span class=nx>log</span><span class=p>.</span><span class=nf>Println</span><span class=p>(</span><span class=nx>err</span><span class=p>)</span>
-	<span class=p>}</span>
-	<span class=k>defer</span> <span class=nx>resp</span><span class=p>.</span><span class=nx>Body</span><span class=p>.</span><span class=nf>Close</span><span class=p>()</span>
-	<span class=nx>body</span><span class=p>,</span> <span class=nx>err</span> <span class=o>:=</span> <span class=nx>ioutil</span><span class=p>.</span><span class=nf>ReadAll</span><span class=p>(</span><span class=nx>resp</span><span class=p>.</span><span class=nx>Body</span><span class=p>)</span>
-	<span class=k>if</span> <span class=nx>err</span> <span class=o>!=</span> <span class=kc>nil</span> <span class=p>{</span>
-		<span class=nx>log</span><span class=p>.</span><span class=nf>Println</span><span class=p>(</span><span class=nx>err</span><span class=p>)</span>
-	<span class=p>}</span>
-	<span class=nx>res</span><span class=p>,</span> <span class=nx>err</span><span class=o>:=</span> <span class=nx>base64</span><span class=p>.</span><span class=nx>StdEncoding</span><span class=p>.</span><span class=nf>DecodeString</span><span class=p>(</span><span class=nb>string</span><span class=p>(</span><span class=nx>body</span><span class=p>))</span>
-	<span class=k>if</span> <span class=nx>err</span> <span class=o>!=</span> <span class=kc>nil</span> <span class=p>{</span>
-		<span class=nx>log</span><span class=p>.</span><span class=nf>Println</span><span class=p>(</span><span class=nx>err</span><span class=p>)</span>
-	<span class=p>}</span>
-	<span class=nx>fmt</span><span class=p>.</span><span class=nf>Println</span><span class=p>(</span><span class=nb>string</span><span class=p>(</span><span class=nx>res</span><span class=p>))</span>
-<span class=p>}</span>
-</code></pre></div><p>发现可以成功请求并解码得到正确订阅链接, 但是会报错(1024非真实数字):</p>
-<div class=highlight><pre tabindex=0 class=chroma><code class=language-shell data-lang=shell>illegal base64 data at input byte <span class=m>1024</span>  
-</code></pre></div><p>该错误可能是因为这串Base64是<a href=https://tools.ietf.org/html/rfc4648#page-7>base64url</a>, 而<a href=https://godoc.org/encoding/base64#RawURLEncoding>golang源码中也提到</a>, 解码这种base64应该使用 RawURLEncoding</p>
-<div class=highlight><pre tabindex=0 class=chroma><code class=language-golang data-lang=golang><span class=c1>// RawURLEncoding is the unpadded alternate base64 encoding defined in RFC 4648.
-</span><span class=c1>// It is typically used in URLs and file names.
-</span><span class=c1>// This is the same as URLEncoding but omits padding characters.
-</span><span class=c1></span><span class=kd>var</span> <span class=nx>RawURLEncoding</span> <span class=p>=</span> <span class=nx>URLEncoding</span><span class=p>.</span><span class=nf>WithPadding</span><span class=p>(</span><span class=nx>NoPadding</span><span class=p>)</span>
-</code></pre></div><p>所以只要把StdEncoding改为RawURLEncoding即可<br>
-流程没问题了, 重写一下, 使用NewDecoder()直接decode resp.Body后返回一个bytes.Buffer, 方便进行进一步处理</p>
-<div class=highlight><pre tabindex=0 class=chroma><code class=language-golang data-lang=golang><span class=kd>func</span> <span class=nf>getSubscribe</span><span class=p>(</span><span class=nx>link</span> <span class=kt>string</span><span class=p>)</span> <span class=o>*</span><span class=nx>bytes</span><span class=p>.</span><span class=nx>Buffer</span> <span class=p>{</span>
-	<span class=nx>resp</span><span class=p>,</span> <span class=nx>err</span> <span class=o>:=</span> <span class=nx>http</span><span class=p>.</span><span class=nf>Get</span><span class=p>(</span><span class=nx>link</span><span class=p>)</span>
-	<span class=k>if</span> <span class=nx>err</span> <span class=o>!=</span> <span class=kc>nil</span> <span class=o>||</span> <span class=nx>resp</span><span class=p>.</span><span class=nx>StatusCode</span> <span class=o>!=</span> <span class=nx>http</span><span class=p>.</span><span class=nx>StatusOK</span> <span class=p>{</span>
-		<span class=nx>log</span><span class=p>.</span><span class=nf>Panic</span><span class=p>(</span><span class=nx>err</span><span class=p>)</span> <span class=c1>//请求错误, 不应该继续向下执行, panic掉
-</span><span class=c1></span>	<span class=p>}</span>
-	<span class=k>defer</span> <span class=nx>resp</span><span class=p>.</span><span class=nx>Body</span><span class=p>.</span><span class=nf>Close</span><span class=p>()</span>
-	<span class=c1>//将数据放入一个 bytes.Buffer 中, 方便操作
-</span><span class=c1></span>	<span class=nx>resBuffer</span> <span class=o>:=</span> <span class=nb>new</span><span class=p>(</span><span class=nx>bytes</span><span class=p>.</span><span class=nx>Buffer</span><span class=p>)</span>
-	<span class=nx>_</span><span class=p>,</span> <span class=nx>_</span> <span class=p>=</span> <span class=nx>resBuffer</span><span class=p>.</span><span class=nf>ReadFrom</span><span class=p>(</span><span class=nx>base64</span><span class=p>.</span><span class=nf>NewDecoder</span><span class=p>(</span><span class=nx>base64</span><span class=p>.</span><span class=nx>RawURLEncoding</span><span class=p>,</span> <span class=nx>resp</span><span class=p>.</span><span class=nx>Body</span><span class=p>))</span>
-	<span class=k>return</span> <span class=nx>resBuffer</span>
-<span class=p>}</span>
-</code></pre></div><h1 id=2处理vmess链接>2.处理vmess://链接</h1>
-<p>然后开始处理所有的vmess://格式的链接, 将上面得到的buffer传进来, 按行分割之后, 再来一次base64解码, 然后反序列化, 返回一个struct数组, 方便后续使用</p>
-<div class=highlight><pre tabindex=0 class=chroma><code class=language-golang data-lang=golang><span class=kd>func</span> <span class=nf>encodeVmessLinks</span><span class=p>(</span><span class=nx>b</span> <span class=o>*</span><span class=nx>bytes</span><span class=p>.</span><span class=nx>Buffer</span><span class=p>)</span> <span class=p>(</span><span class=nx>resStruct</span> <span class=p>[]</span><span class=nx>V2rayConfig</span><span class=p>)</span> <span class=p>{</span>
-	<span class=k>for</span> <span class=p>{</span>
-		<span class=nx>link</span><span class=p>,</span> <span class=nx>err</span> <span class=o>:=</span> <span class=nx>b</span><span class=p>.</span><span class=nf>ReadString</span><span class=p>(</span><span class=sc>&#39;\n&#39;</span><span class=p>)</span>
-		<span class=k>if</span> <span class=nx>err</span> <span class=o>!=</span> <span class=kc>nil</span> <span class=p>{</span>
-			<span class=k>if</span> <span class=nx>err</span> <span class=o>==</span> <span class=nx>io</span><span class=p>.</span><span class=nx>EOF</span> <span class=p>{</span> <span class=c1>//已经读取了所有vmess链接
-</span><span class=c1></span>				<span class=k>break</span>
-			<span class=p>}</span>
-			<span class=nx>log</span><span class=p>.</span><span class=nf>Println</span><span class=p>(</span><span class=nx>err</span><span class=p>)</span>
-			<span class=k>continue</span>
-		<span class=p>}</span>
-		<span class=nx>res</span><span class=p>,</span> <span class=nx>err</span> <span class=o>:=</span> <span class=nx>base64</span><span class=p>.</span><span class=nx>StdEncoding</span><span class=p>.</span><span class=nf>DecodeString</span><span class=p>(</span><span class=nx>link</span><span class=p>[</span><span class=mi>8</span><span class=p>:])</span>		<span class=c1>//截断vmess://
-</span><span class=c1></span>		<span class=k>if</span> <span class=nx>err</span> <span class=o>!=</span> <span class=kc>nil</span> <span class=p>{</span>
-			<span class=nx>log</span><span class=p>.</span><span class=nf>Println</span><span class=p>(</span><span class=nx>err</span><span class=p>)</span>
-			<span class=k>return</span>
-		<span class=p>}</span>
-		<span class=kd>var</span> <span class=nx>tmpStruct</span> <span class=nx>V2rayConfig</span>
-		<span class=nx>err</span> <span class=p>=</span> <span class=nx>json</span><span class=p>.</span><span class=nf>Unmarshal</span><span class=p>(</span><span class=nx>res</span><span class=p>,</span> <span class=o>&amp;</span><span class=nx>amp</span><span class=p>;</span><span class=nx>tmpStruct</span><span class=p>)</span>
-		<span class=k>if</span> <span class=nx>err</span> <span class=o>!=</span> <span class=kc>nil</span> <span class=p>{</span>
-			<span class=nx>log</span><span class=p>.</span><span class=nf>Println</span><span class=p>(</span><span class=nx>err</span><span class=p>)</span>
-			<span class=k>return</span>
-		<span class=p>}</span>
-		<span class=nx>resStruct</span> <span class=p>=</span> <span class=nb>append</span><span class=p>(</span><span class=nx>resStruct</span><span class=p>,</span> <span class=nx>tmpStruct</span><span class=p>)</span>
-	<span class=p>}</span>
-	<span class=k>return</span>
-<span class=p>}</span>
-</code></pre></div><h1 id=3测试延迟>3.测试延迟</h1>
-<p>开始想着可不可以调用v2ray来做延迟测试, 想了想感觉有点难搞, <del>咕咕咕</del>以后有空再说, 就退而求其次使用直接ping的方法做, 开始直接用的是<a href=https://github.com/sparrc/go-ping>go-ping</a>这个库</p>
-<div class=highlight><pre tabindex=0 class=chroma><code class=language-golang data-lang=golang><span class=kd>func</span> <span class=nf>pingAndPrint</span><span class=p>(</span><span class=nx>AllVmessStruct</span> <span class=p>[]</span><span class=nx>V2rayConfig</span><span class=p>)</span> <span class=p>{</span>
-	<span class=kd>var</span> <span class=nx>wg</span> <span class=nx>sync</span><span class=p>.</span><span class=nx>WaitGroup</span>
-	<span class=k>for</span> <span class=nx>key</span><span class=p>,</span> <span class=nx>value</span> <span class=o>:=</span> <span class=k>range</span> <span class=nx>AllVmessStruct</span> <span class=p>{</span>
-		<span class=nx>wg</span><span class=p>.</span><span class=nf>Add</span><span class=p>(</span><span class=mi>1</span><span class=p>)</span>
-		<span class=k>go</span> <span class=kd>func</span><span class=p>(</span><span class=nx>k</span> <span class=kt>int</span><span class=p>,</span> <span class=nx>v</span> <span class=nx>V2rayConfig</span><span class=p>)</span> <span class=p>{</span>
-			<span class=nx>pinger</span><span class=p>,</span> <span class=nx>err</span> <span class=o>:=</span> <span class=nx>ping</span><span class=p>.</span><span class=nf>NewPinger</span><span class=p>(</span><span class=nx>v</span><span class=p>.</span><span class=nx>Add</span><span class=p>)</span>
-			<span class=k>if</span> <span class=nx>err</span> <span class=o>!=</span> <span class=kc>nil</span> <span class=p>{</span>
-				<span class=nb>panic</span><span class=p>(</span><span class=nx>err</span><span class=p>)</span>
-			<span class=p>}</span>
-			<span class=nx>pinger</span><span class=p>.</span><span class=nx>Count</span> <span class=p>=</span> <span class=mi>5</span>
-			<span class=nx>pinger</span><span class=p>.</span><span class=nx>Timeout</span> <span class=p>=</span> <span class=mi>5</span> <span class=o>*</span> <span class=nx>time</span><span class=p>.</span><span class=nx>Second</span>
-			<span class=nx>pinger</span><span class=p>.</span><span class=nx>Interval</span> <span class=p>=</span> <span class=mi>100</span> <span class=o>*</span> <span class=nx>time</span><span class=p>.</span><span class=nx>Millisecond</span>
-			<span class=nx>pinger</span><span class=p>.</span><span class=nf>Run</span><span class=p>()</span>
-			<span class=nx>stats</span> <span class=o>:=</span> <span class=nx>pinger</span><span class=p>.</span><span class=nf>Statistics</span><span class=p>()</span>
-			<span class=nx>fmt</span><span class=p>.</span><span class=nf>Printf</span><span class=p>([</span><span class=o>%</span><span class=mo>02</span><span class=nx>d</span><span class=p>]:</span><span class=o>%-</span><span class=mi>40</span><span class=nx>s</span><span class=p>|</span> <span class=nx>最低延迟</span><span class=p>:</span><span class=o>%-</span><span class=mi>12</span><span class=nx>s</span> <span class=nx>最高延迟</span><span class=p>:</span><span class=o>%-</span><span class=mi>12</span><span class=nx>s</span> <span class=nx>丢包率</span><span class=o>%</span><span class=nx>v</span> <span class=err>\</span><span class=nx>n</span><span class=p>,</span>
-				<span class=nx>k</span><span class=p>,</span>
-				<span class=nx>v</span><span class=p>.</span><span class=nx>Ps</span><span class=p>,</span>
-				<span class=nx>stats</span><span class=p>.</span><span class=nx>MinRtt</span><span class=p>.</span><span class=nf>Round</span><span class=p>(</span><span class=nx>time</span><span class=p>.</span><span class=nx>Millisecond</span><span class=p>).</span><span class=nf>String</span><span class=p>(),</span>	<span class=c1>//抛弃小数点后的位数
-</span><span class=c1></span>				<span class=nx>stats</span><span class=p>.</span><span class=nx>MaxRtt</span><span class=p>.</span><span class=nf>Round</span><span class=p>(</span><span class=nx>time</span><span class=p>.</span><span class=nx>Millisecond</span><span class=p>).</span><span class=nf>String</span><span class=p>(),</span>
-				<span class=nx>stats</span><span class=p>.</span><span class=nx>PacketLoss</span><span class=p>)</span>
-			<span class=nx>wg</span><span class=p>.</span><span class=nf>Done</span><span class=p>()</span>
-		<span class=p>}(</span><span class=nx>key</span><span class=p>,</span> <span class=nx>value</span><span class=p>)</span>
-	<span class=p>}</span>
-	<span class=nx>wg</span><span class=p>.</span><span class=nf>Wait</span><span class=p>()</span>
-<span class=p>}</span>
-</code></pre></div><p>这里给每一个ping都开了一个goroutine, 一方面可以快点搞完, 另一方面也可以顺便按照速度来排序, 不过有个缺点就是节点很多的情况下得往上滚一下才能看到速度最快的几个节点<br>
-还有一个要注意的细节是在for循坏内使用go func要传参, 不然的话只能取到第一个值, 闭包内取外部函数的参数的时候取的是地址, 而不是调用闭包时的参数值</p>
-<div class=highlight><pre tabindex=0 class=chroma><code class=language-golang data-lang=golang>	<span class=c1>// 例如想要起goroutine来处理一个slice
-</span><span class=c1></span>	<span class=nx>tmp</span> <span class=o>:=</span> <span class=p>[]</span><span class=kt>string</span><span class=p>{</span><span class=nx>one</span><span class=p>,</span> <span class=nx>two</span><span class=p>,</span> <span class=nx>three</span><span class=p>}</span>
-	
-	<span class=c1>//错误写法,三次输出均为 0 one
-</span><span class=c1></span>	<span class=k>for</span> <span class=nx>key_outside</span><span class=p>,</span> <span class=nx>value_outside</span> <span class=o>:=</span> <span class=k>range</span> <span class=nx>tmp</span> <span class=p>{</span>
-		<span class=k>go</span> <span class=kd>func</span><span class=p>()</span> <span class=p>{</span>
-			<span class=nx>fmt</span><span class=p>.</span><span class=nf>Println</span><span class=p>(</span><span class=nx>key_outside</span><span class=p>,</span> <span class=nx>value_outside</span><span class=p>)</span>
-		<span class=p>}()</span>
-	<span class=p>}</span>
-	
-	<span class=c1>//正确写法
-</span><span class=c1></span>	<span class=nx>tmp</span> <span class=o>:=</span> <span class=p>[]</span><span class=kt>string</span><span class=p>{</span><span class=nx>one</span><span class=p>,</span> <span class=nx>two</span><span class=p>,</span> <span class=nx>three</span><span class=p>}</span>
-	<span class=k>for</span> <span class=nx>key_outside</span><span class=p>,</span> <span class=nx>value_outside</span> <span class=o>:=</span> <span class=k>range</span> <span class=nx>tmp</span> <span class=p>{</span>
-		<span class=k>go</span> <span class=kd>func</span><span class=p>(</span><span class=nx>key_inside</span> <span class=kt>int</span><span class=p>,</span> <span class=nx>value_inside</span> <span class=kt>string</span><span class=p>)</span> <span class=p>{</span>
-			<span class=nx>fmt</span><span class=p>.</span><span class=nf>Println</span><span class=p>(</span><span class=nx>key_inside</span><span class=p>,</span> <span class=nx>value_inside</span><span class=p>)</span>
-		<span class=p>}(</span><span class=nx>key</span><span class=p>,</span> <span class=nx>value</span><span class=p>)</span>
-	<span class=p>}</span>
-</code></pre></div><p>以及 go-ping 库的作者在<a href=https://github.com/sparrc/go-ping#note-on-linux-support>README中</a>写了在Linux上使用会遇到权限问题</p>
-<div class=highlight><pre tabindex=0 class=chroma><code class=language-shell data-lang=shell>Error listening <span class=k>for</span> ICMP packets: socket: permission denied
-</code></pre></div><p>他在Github中给出的解决方法是执行 <code>sudo sysctl -w net.ipv4.ping_group_range=0 2147483647</code><br>
-经过测试之后, 发现只要将用户的group写进去就可以了, 不需要这么大的范围:<code>sudo sysctl -w net.ipv4.ping_group_range='1000 1000'</code>
-然而, 在已经实现这部分之后发现这个命令只能管用一次, 重启就不行了, 要么就得以root权限运行程序, 感觉十分不优雅, 经过一番查找之后, 受<a href=https://stackoverflow.com/a/42227115>stack overflow上的这个回答</a>的启发, 感觉应该可以通过net包里面的<a href=https://golang.org/pkg/net/#DialTimeout>DialTimeout</a>函数来实现对服务器延迟的检测, 验证一下:</p>
-<div class=highlight><pre tabindex=0 class=chroma><code class=language-golang data-lang=golang><span class=kd>func</span> <span class=nf>pingAndPrint</span><span class=p>(</span><span class=nx>AllVmessStruct</span> <span class=p>[]</span><span class=nx>V2rayConfig</span><span class=p>)</span> <span class=p>{</span>
-	<span class=kd>var</span> <span class=nx>wg</span> <span class=nx>sync</span><span class=p>.</span><span class=nx>WaitGroup</span>
-	<span class=k>for</span> <span class=nx>key</span><span class=p>,</span> <span class=nx>value</span> <span class=o>:=</span> <span class=k>range</span> <span class=nx>AllVmessStruct</span> <span class=p>{</span>
-		<span class=nx>wg</span><span class=p>.</span><span class=nf>Add</span><span class=p>(</span><span class=mi>1</span><span class=p>)</span>
-		<span class=k>go</span> <span class=kd>func</span><span class=p>(</span><span class=nx>k</span> <span class=kt>int</span><span class=p>,</span> <span class=nx>v</span> <span class=nx>V2rayConfig</span><span class=p>)</span> <span class=p>{</span>
-			<span class=nx>pinger</span><span class=p>,</span> <span class=nx>err</span> <span class=o>:=</span> <span class=nx>ping</span><span class=p>.</span><span class=nf>NewPinger</span><span class=p>(</span><span class=nx>v</span><span class=p>.</span><span class=nx>Add</span><span class=p>)</span>
-			<span class=k>if</span> <span class=nx>err</span> <span class=o>!=</span> <span class=kc>nil</span> <span class=p>{</span>
-				<span class=nb>panic</span><span class=p>(</span><span class=nx>err</span><span class=p>)</span>
-			<span class=p>}</span>
-			<span class=nx>pinger</span><span class=p>.</span><span class=nx>Count</span> <span class=p>=</span> <span class=mi>5</span>
-			<span class=nx>pinger</span><span class=p>.</span><span class=nx>Timeout</span> <span class=p>=</span> <span class=mi>5</span> <span class=o>*</span> <span class=nx>time</span><span class=p>.</span><span class=nx>Second</span>
-			<span class=nx>pinger</span><span class=p>.</span><span class=nx>Interval</span> <span class=p>=</span> <span class=mi>100</span> <span class=o>*</span> <span class=nx>time</span><span class=p>.</span><span class=nx>Millisecond</span>
-			<span class=nx>pinger</span><span class=p>.</span><span class=nf>Run</span><span class=p>()</span>
-			<span class=nx>stats</span> <span class=o>:=</span> <span class=nx>pinger</span><span class=p>.</span><span class=nf>Statistics</span><span class=p>()</span>
-			<span class=nx>fmt</span><span class=p>.</span><span class=nf>Printf</span><span class=p>([</span><span class=o>%</span><span class=mo>02</span><span class=nx>d</span><span class=p>]:</span><span class=o>%-</span><span class=mi>40</span><span class=nx>s</span><span class=p>|</span> <span class=nx>最低延迟</span><span class=p>:</span><span class=o>%-</span><span class=mi>12</span><span class=nx>s</span> <span class=nx>最高延迟</span><span class=p>:</span><span class=o>%-</span><span class=mi>12</span><span class=nx>s</span> <span class=nx>丢包率</span><span class=o>%</span><span class=nx>v</span> <span class=err>\</span><span class=nx>n</span><span class=p>,</span>
-				<span class=nx>k</span><span class=p>,</span>
-				<span class=nx>v</span><span class=p>.</span><span class=nx>Ps</span><span class=p>,</span>
-				<span class=nx>stats</span><span class=p>.</span><span class=nx>MinRtt</span><span class=p>.</span><span class=nf>Round</span><span class=p>(</span><span class=nx>time</span><span class=p>.</span><span class=nx>Millisecond</span><span class=p>).</span><span class=nf>String</span><span class=p>(),</span>	<span class=c1>//抛弃小数点后的位数
-</span><span class=c1></span>				<span class=nx>stats</span><span class=p>.</span><span class=nx>MaxRtt</span><span class=p>.</span><span class=nf>Round</span><span class=p>(</span><span class=nx>time</span><span class=p>.</span><span class=nx>Millisecond</span><span class=p>).</span><span class=nf>String</span><span class=p>(),</span>
-				<span class=nx>stats</span><span class=p>.</span><span class=nx>PacketLoss</span><span class=p>)</span>
-			<span class=nx>wg</span><span class=p>.</span><span class=nf>Done</span><span class=p>()</span>
-		<span class=p>}(</span><span class=nx>key</span><span class=p>,</span> <span class=nx>value</span><span class=p>)</span>
-	<span class=p>}</span>
-	<span class=nx>wg</span><span class=p>.</span><span class=nf>Wait</span><span class=p>()</span>
-<span class=p>}</span>
-</code></pre></div><p>大功告成, 测试之后, 这个方法和直接ping的结果是非常接近的, 其实就是建立了一次完整的TCP连接耗费的时间.</p>
-<h1 id=4选择节点>4.选择节点</h1>
-<p>最开始使用很原始的输入编号然后选择的写法, 想了想应该有现成的轮子, Github一找, 果然找到了这个: <a href=https://github.com/AlecAivazis/survey>survey</a>, 支持单选多选,挺好用的, 然而得把所有的节点都给传进去才行, 再一番尝试之后还是放弃了, 这个库虽然还算好用, 但是有几个缺点, 一是选项只能是[]string, 然后选择结果也是一个[]string, 并不灵活, 我还需要用一个map来存节点名字和配置的对应关系, 二是选择完之后他会输出选择的选项, 没办法关掉, 有点丑, 于是最后还是回到手动输入节点的方式来实现了:</p>
-<div class=highlight><pre tabindex=0 class=chroma><code class=language-golang data-lang=golang><span class=nx>fmt</span><span class=p>.</span><span class=nf>Print</span><span class=p>(</span><span class=nx>请输入要选择的节点编号</span><span class=p>,</span><span class=nx>以空格分割</span><span class=p>,</span><span class=nx>回车结束</span><span class=p>:</span> <span class=p>)</span>
-	<span class=nx>scanner</span> <span class=o>:=</span> <span class=nx>bufio</span><span class=p>.</span><span class=nf>NewScanner</span><span class=p>(</span><span class=nx>os</span><span class=p>.</span><span class=nx>Stdin</span><span class=p>)</span>
-	<span class=nx>scanner</span><span class=p>.</span><span class=nf>Scan</span><span class=p>()</span>
-	<span class=nx>selectResult</span> <span class=o>:=</span> <span class=nf>numbers</span><span class=p>(</span><span class=nx>scanner</span><span class=p>.</span><span class=nf>Text</span><span class=p>())</span>
-</code></pre></div><p>ps: 这篇文章是几年前写的, 因为一些需求，我又用了一次这个库, 还是一如既往的不太好用</p>
-<h1 id=5生成configjson文件>5.生成config.json文件</h1>
-<p>这部分倒是最简单的部分, 写struct然后输出就行了, 就是生成struct的过程不太优雅, 不过已经可以用了, 就懒得再折腾了</p>
-</div>
-<div class=post_footer>
-<div class=meta>
-<div class=info>
-<span class="field tags">
-<i class=ri-stack-line></i>
+<!doctype html><html lang=zh-cn><head><meta charset=utf-8><meta http-equiv=x-ua-compatible content="IE=edge,chrome=1"><meta name=viewport content="width=device-width,initial-scale=1"><meta name=author content="zi0n"><title>将 V2ray 订阅链接转换为 config 文件｜无聊博客</title><meta name=description content="1.请求并解码 大多数订阅链接都是base64编码过的, 所以首先使用net/http中的Get()方法请求订阅链接, 获得base64编码后进行解码, 得到vmess://xxx格式的订阅链接 简单写一个方法"><meta name=keywords content="V2ray,golang"><link rel="shortcut icon" href=https://blog.5a6c.me/images/favicon.ico><link rel=stylesheet type=text/css media=screen href=https://blog.5a6c.me/css/normalize.css><link rel=stylesheet type=text/css media=screen href=https://cdn.jsdelivr.net/npm/animate.css@4.1.0/animate.min.css><link rel=stylesheet type=text/css media=screen href=https://blog.5a6c.me/css/zozo.css><link rel=stylesheet type=text/css media=screen href=https://cdn.jsdelivr.net/npm/remixicon@2.5.0/fonts/remixicon.css><link rel=stylesheet type=text/css media=screen href=https://blog.5a6c.me/css/highlight.css></head><body><div class="main animate__animated animate__fadeInDown"><div class="nav_container animated fadeInDown"><div class=site_nav id=site_nav><ul><li><a href=/>Home</a></li><li><a href=/posts/>Archive</a></li><li><a href=/tags/>Tags</a></li><li><a href=/about/>About</a></li></ul></div></div><div class="header animated fadeInDown"><div class=site_title_container><div class=site_title><h1><a href=https://blog.5a6c.me/><span>无聊博客</span></a></h1></div><div class=description><p class=sub_title>a CURD boy's blog.</p><div class=my_socials><a href=https://github.com/zigitn title=github target=_blank><i class=ri-github-fill></i></a>
+<a href=https://blog.5a6c.me/index.xml type=application/rss+xml title=rss target=_blank><i class=ri-rss-fill></i></a></div></div></div></div><div class=content><div class=post_page><div class="post animate__animated animate__fadeInDown"><div class="post_title post_detail_title"><h2><a href=/posts/v2ray-subscribe-to-config/>将 V2ray 订阅链接转换为 config 文件</a></h2><span class=date>2019.10.02</span></div><div class="post_content markdown"><h1 id=1请求并解码>1.请求并解码</h1><p>大多数订阅链接都是base64编码过的, 所以首先使用net/http中的Get()方法请求订阅链接, 获得base64编码后进行解码, 得到vmess://xxx格式的订阅链接<br>简单写一个方法测试一下:</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-golang data-lang=golang><span class=line><span class=cl><span class=kd>func</span> <span class=nf>getSubscribe</span><span class=p>(</span><span class=nx>link</span> <span class=kt>string</span><span class=p>)</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>	<span class=nx>resp</span><span class=p>,</span> <span class=nx>err</span> <span class=o>:=</span> <span class=nx>http</span><span class=p>.</span><span class=nf>Get</span><span class=p>(</span><span class=nx>link</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>	<span class=k>if</span> <span class=nx>err</span> <span class=o>!=</span> <span class=kc>nil</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>		<span class=nx>log</span><span class=p>.</span><span class=nf>Println</span><span class=p>(</span><span class=nx>err</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>	<span class=p>}</span>
+</span></span><span class=line><span class=cl>	<span class=k>defer</span> <span class=nx>resp</span><span class=p>.</span><span class=nx>Body</span><span class=p>.</span><span class=nf>Close</span><span class=p>()</span>
+</span></span><span class=line><span class=cl>	<span class=nx>body</span><span class=p>,</span> <span class=nx>err</span> <span class=o>:=</span> <span class=nx>ioutil</span><span class=p>.</span><span class=nf>ReadAll</span><span class=p>(</span><span class=nx>resp</span><span class=p>.</span><span class=nx>Body</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>	<span class=k>if</span> <span class=nx>err</span> <span class=o>!=</span> <span class=kc>nil</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>		<span class=nx>log</span><span class=p>.</span><span class=nf>Println</span><span class=p>(</span><span class=nx>err</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>	<span class=p>}</span>
+</span></span><span class=line><span class=cl>	<span class=nx>res</span><span class=p>,</span> <span class=nx>err</span><span class=o>:=</span> <span class=nx>base64</span><span class=p>.</span><span class=nx>StdEncoding</span><span class=p>.</span><span class=nf>DecodeString</span><span class=p>(</span><span class=nb>string</span><span class=p>(</span><span class=nx>body</span><span class=p>))</span>
+</span></span><span class=line><span class=cl>	<span class=k>if</span> <span class=nx>err</span> <span class=o>!=</span> <span class=kc>nil</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>		<span class=nx>log</span><span class=p>.</span><span class=nf>Println</span><span class=p>(</span><span class=nx>err</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>	<span class=p>}</span>
+</span></span><span class=line><span class=cl>	<span class=nx>fmt</span><span class=p>.</span><span class=nf>Println</span><span class=p>(</span><span class=nb>string</span><span class=p>(</span><span class=nx>res</span><span class=p>))</span>
+</span></span><span class=line><span class=cl><span class=p>}</span>
+</span></span></code></pre></div><p>发现可以成功请求并解码得到正确订阅链接, 但是会报错(1024非真实数字):</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-shell data-lang=shell><span class=line><span class=cl>illegal base64 data at input byte <span class=m>1024</span>  
+</span></span></code></pre></div><p>该错误可能是因为这串Base64是<a href=https://tools.ietf.org/html/rfc4648#page-7>base64url</a>, 而<a href=https://godoc.org/encoding/base64#RawURLEncoding>golang源码中也提到</a>, 解码这种base64应该使用 RawURLEncoding</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-golang data-lang=golang><span class=line><span class=cl><span class=c1>// RawURLEncoding is the unpadded alternate base64 encoding defined in RFC 4648.
+</span></span></span><span class=line><span class=cl><span class=c1>// It is typically used in URLs and file names.
+</span></span></span><span class=line><span class=cl><span class=c1>// This is the same as URLEncoding but omits padding characters.
+</span></span></span><span class=line><span class=cl><span class=c1></span><span class=kd>var</span> <span class=nx>RawURLEncoding</span> <span class=p>=</span> <span class=nx>URLEncoding</span><span class=p>.</span><span class=nf>WithPadding</span><span class=p>(</span><span class=nx>NoPadding</span><span class=p>)</span>
+</span></span></code></pre></div><p>所以只要把StdEncoding改为RawURLEncoding即可<br>流程没问题了, 重写一下, 使用NewDecoder()直接decode resp.Body后返回一个bytes.Buffer, 方便进行进一步处理</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-golang data-lang=golang><span class=line><span class=cl><span class=kd>func</span> <span class=nf>getSubscribe</span><span class=p>(</span><span class=nx>link</span> <span class=kt>string</span><span class=p>)</span> <span class=o>*</span><span class=nx>bytes</span><span class=p>.</span><span class=nx>Buffer</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>	<span class=nx>resp</span><span class=p>,</span> <span class=nx>err</span> <span class=o>:=</span> <span class=nx>http</span><span class=p>.</span><span class=nf>Get</span><span class=p>(</span><span class=nx>link</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>	<span class=k>if</span> <span class=nx>err</span> <span class=o>!=</span> <span class=kc>nil</span> <span class=o>||</span> <span class=nx>resp</span><span class=p>.</span><span class=nx>StatusCode</span> <span class=o>!=</span> <span class=nx>http</span><span class=p>.</span><span class=nx>StatusOK</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>		<span class=nx>log</span><span class=p>.</span><span class=nf>Panic</span><span class=p>(</span><span class=nx>err</span><span class=p>)</span> <span class=c1>//请求错误, 不应该继续向下执行, panic掉
+</span></span></span><span class=line><span class=cl><span class=c1></span>	<span class=p>}</span>
+</span></span><span class=line><span class=cl>	<span class=k>defer</span> <span class=nx>resp</span><span class=p>.</span><span class=nx>Body</span><span class=p>.</span><span class=nf>Close</span><span class=p>()</span>
+</span></span><span class=line><span class=cl>	<span class=c1>//将数据放入一个 bytes.Buffer 中, 方便操作
+</span></span></span><span class=line><span class=cl><span class=c1></span>	<span class=nx>resBuffer</span> <span class=o>:=</span> <span class=nb>new</span><span class=p>(</span><span class=nx>bytes</span><span class=p>.</span><span class=nx>Buffer</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>	<span class=nx>_</span><span class=p>,</span> <span class=nx>_</span> <span class=p>=</span> <span class=nx>resBuffer</span><span class=p>.</span><span class=nf>ReadFrom</span><span class=p>(</span><span class=nx>base64</span><span class=p>.</span><span class=nf>NewDecoder</span><span class=p>(</span><span class=nx>base64</span><span class=p>.</span><span class=nx>RawURLEncoding</span><span class=p>,</span> <span class=nx>resp</span><span class=p>.</span><span class=nx>Body</span><span class=p>))</span>
+</span></span><span class=line><span class=cl>	<span class=k>return</span> <span class=nx>resBuffer</span>
+</span></span><span class=line><span class=cl><span class=p>}</span>
+</span></span></code></pre></div><h1 id=2处理vmess链接>2.处理vmess://链接</h1><p>然后开始处理所有的vmess://格式的链接, 将上面得到的buffer传进来, 按行分割之后, 再来一次base64解码, 然后反序列化, 返回一个struct数组, 方便后续使用</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-golang data-lang=golang><span class=line><span class=cl><span class=kd>func</span> <span class=nf>encodeVmessLinks</span><span class=p>(</span><span class=nx>b</span> <span class=o>*</span><span class=nx>bytes</span><span class=p>.</span><span class=nx>Buffer</span><span class=p>)</span> <span class=p>(</span><span class=nx>resStruct</span> <span class=p>[]</span><span class=nx>V2rayConfig</span><span class=p>)</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>	<span class=k>for</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>		<span class=nx>link</span><span class=p>,</span> <span class=nx>err</span> <span class=o>:=</span> <span class=nx>b</span><span class=p>.</span><span class=nf>ReadString</span><span class=p>(</span><span class=sc>&#39;\n&#39;</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>		<span class=k>if</span> <span class=nx>err</span> <span class=o>!=</span> <span class=kc>nil</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>			<span class=k>if</span> <span class=nx>err</span> <span class=o>==</span> <span class=nx>io</span><span class=p>.</span><span class=nx>EOF</span> <span class=p>{</span> <span class=c1>//已经读取了所有vmess链接
+</span></span></span><span class=line><span class=cl><span class=c1></span>				<span class=k>break</span>
+</span></span><span class=line><span class=cl>			<span class=p>}</span>
+</span></span><span class=line><span class=cl>			<span class=nx>log</span><span class=p>.</span><span class=nf>Println</span><span class=p>(</span><span class=nx>err</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>			<span class=k>continue</span>
+</span></span><span class=line><span class=cl>		<span class=p>}</span>
+</span></span><span class=line><span class=cl>		<span class=nx>res</span><span class=p>,</span> <span class=nx>err</span> <span class=o>:=</span> <span class=nx>base64</span><span class=p>.</span><span class=nx>StdEncoding</span><span class=p>.</span><span class=nf>DecodeString</span><span class=p>(</span><span class=nx>link</span><span class=p>[</span><span class=mi>8</span><span class=p>:])</span>		<span class=c1>//截断vmess://
+</span></span></span><span class=line><span class=cl><span class=c1></span>		<span class=k>if</span> <span class=nx>err</span> <span class=o>!=</span> <span class=kc>nil</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>			<span class=nx>log</span><span class=p>.</span><span class=nf>Println</span><span class=p>(</span><span class=nx>err</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>			<span class=k>return</span>
+</span></span><span class=line><span class=cl>		<span class=p>}</span>
+</span></span><span class=line><span class=cl>		<span class=kd>var</span> <span class=nx>tmpStruct</span> <span class=nx>V2rayConfig</span>
+</span></span><span class=line><span class=cl>		<span class=nx>err</span> <span class=p>=</span> <span class=nx>json</span><span class=p>.</span><span class=nf>Unmarshal</span><span class=p>(</span><span class=nx>res</span><span class=p>,</span> <span class=o>&amp;</span><span class=nx>amp</span><span class=p>;</span><span class=nx>tmpStruct</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>		<span class=k>if</span> <span class=nx>err</span> <span class=o>!=</span> <span class=kc>nil</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>			<span class=nx>log</span><span class=p>.</span><span class=nf>Println</span><span class=p>(</span><span class=nx>err</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>			<span class=k>return</span>
+</span></span><span class=line><span class=cl>		<span class=p>}</span>
+</span></span><span class=line><span class=cl>		<span class=nx>resStruct</span> <span class=p>=</span> <span class=nb>append</span><span class=p>(</span><span class=nx>resStruct</span><span class=p>,</span> <span class=nx>tmpStruct</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>	<span class=p>}</span>
+</span></span><span class=line><span class=cl>	<span class=k>return</span>
+</span></span><span class=line><span class=cl><span class=p>}</span>
+</span></span></code></pre></div><h1 id=3测试延迟>3.测试延迟</h1><p>开始想着可不可以调用v2ray来做延迟测试, 想了想感觉有点难搞, <del>咕咕咕</del>以后有空再说, 就退而求其次使用直接ping的方法做, 开始直接用的是<a href=https://github.com/sparrc/go-ping>go-ping</a>这个库</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-golang data-lang=golang><span class=line><span class=cl><span class=kd>func</span> <span class=nf>pingAndPrint</span><span class=p>(</span><span class=nx>AllVmessStruct</span> <span class=p>[]</span><span class=nx>V2rayConfig</span><span class=p>)</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>	<span class=kd>var</span> <span class=nx>wg</span> <span class=nx>sync</span><span class=p>.</span><span class=nx>WaitGroup</span>
+</span></span><span class=line><span class=cl>	<span class=k>for</span> <span class=nx>key</span><span class=p>,</span> <span class=nx>value</span> <span class=o>:=</span> <span class=k>range</span> <span class=nx>AllVmessStruct</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>		<span class=nx>wg</span><span class=p>.</span><span class=nf>Add</span><span class=p>(</span><span class=mi>1</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>		<span class=k>go</span> <span class=kd>func</span><span class=p>(</span><span class=nx>k</span> <span class=kt>int</span><span class=p>,</span> <span class=nx>v</span> <span class=nx>V2rayConfig</span><span class=p>)</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>			<span class=nx>pinger</span><span class=p>,</span> <span class=nx>err</span> <span class=o>:=</span> <span class=nx>ping</span><span class=p>.</span><span class=nf>NewPinger</span><span class=p>(</span><span class=nx>v</span><span class=p>.</span><span class=nx>Add</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>			<span class=k>if</span> <span class=nx>err</span> <span class=o>!=</span> <span class=kc>nil</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>				<span class=nb>panic</span><span class=p>(</span><span class=nx>err</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>			<span class=p>}</span>
+</span></span><span class=line><span class=cl>			<span class=nx>pinger</span><span class=p>.</span><span class=nx>Count</span> <span class=p>=</span> <span class=mi>5</span>
+</span></span><span class=line><span class=cl>			<span class=nx>pinger</span><span class=p>.</span><span class=nx>Timeout</span> <span class=p>=</span> <span class=mi>5</span> <span class=o>*</span> <span class=nx>time</span><span class=p>.</span><span class=nx>Second</span>
+</span></span><span class=line><span class=cl>			<span class=nx>pinger</span><span class=p>.</span><span class=nx>Interval</span> <span class=p>=</span> <span class=mi>100</span> <span class=o>*</span> <span class=nx>time</span><span class=p>.</span><span class=nx>Millisecond</span>
+</span></span><span class=line><span class=cl>			<span class=nx>pinger</span><span class=p>.</span><span class=nf>Run</span><span class=p>()</span>
+</span></span><span class=line><span class=cl>			<span class=nx>stats</span> <span class=o>:=</span> <span class=nx>pinger</span><span class=p>.</span><span class=nf>Statistics</span><span class=p>()</span>
+</span></span><span class=line><span class=cl>			<span class=nx>fmt</span><span class=p>.</span><span class=nf>Printf</span><span class=p>([</span><span class=o>%</span><span class=mo>02</span><span class=nx>d</span><span class=p>]:</span><span class=o>%-</span><span class=mi>40</span><span class=nx>s</span><span class=p>|</span> <span class=err>最低延迟</span><span class=p>:</span><span class=o>%-</span><span class=mi>12</span><span class=nx>s</span> <span class=err>最高延迟</span><span class=p>:</span><span class=o>%-</span><span class=mi>12</span><span class=nx>s</span> <span class=err>丢包率</span><span class=o>%</span><span class=nx>v</span> <span class=err>\</span><span class=nx>n</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>				<span class=nx>k</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>				<span class=nx>v</span><span class=p>.</span><span class=nx>Ps</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>				<span class=nx>stats</span><span class=p>.</span><span class=nx>MinRtt</span><span class=p>.</span><span class=nf>Round</span><span class=p>(</span><span class=nx>time</span><span class=p>.</span><span class=nx>Millisecond</span><span class=p>).</span><span class=nf>String</span><span class=p>(),</span>	<span class=c1>//抛弃小数点后的位数
+</span></span></span><span class=line><span class=cl><span class=c1></span>				<span class=nx>stats</span><span class=p>.</span><span class=nx>MaxRtt</span><span class=p>.</span><span class=nf>Round</span><span class=p>(</span><span class=nx>time</span><span class=p>.</span><span class=nx>Millisecond</span><span class=p>).</span><span class=nf>String</span><span class=p>(),</span>
+</span></span><span class=line><span class=cl>				<span class=nx>stats</span><span class=p>.</span><span class=nx>PacketLoss</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>			<span class=nx>wg</span><span class=p>.</span><span class=nf>Done</span><span class=p>()</span>
+</span></span><span class=line><span class=cl>		<span class=p>}(</span><span class=nx>key</span><span class=p>,</span> <span class=nx>value</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>	<span class=p>}</span>
+</span></span><span class=line><span class=cl>	<span class=nx>wg</span><span class=p>.</span><span class=nf>Wait</span><span class=p>()</span>
+</span></span><span class=line><span class=cl><span class=p>}</span>
+</span></span></code></pre></div><p>这里给每一个ping都开了一个goroutine, 一方面可以快点搞完, 另一方面也可以顺便按照速度来排序, 不过有个缺点就是节点很多的情况下得往上滚一下才能看到速度最快的几个节点<br>还有一个要注意的细节是在for循坏内使用go func要传参, 不然的话只能取到第一个值, 闭包内取外部函数的参数的时候取的是地址, 而不是调用闭包时的参数值</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-golang data-lang=golang><span class=line><span class=cl>	<span class=c1>// 例如想要起goroutine来处理一个slice
+</span></span></span><span class=line><span class=cl><span class=c1></span>	<span class=nx>tmp</span> <span class=o>:=</span> <span class=p>[]</span><span class=kt>string</span><span class=p>{</span><span class=nx>one</span><span class=p>,</span> <span class=nx>two</span><span class=p>,</span> <span class=nx>three</span><span class=p>}</span>
+</span></span><span class=line><span class=cl>	
+</span></span><span class=line><span class=cl>	<span class=c1>//错误写法,三次输出均为 0 one
+</span></span></span><span class=line><span class=cl><span class=c1></span>	<span class=k>for</span> <span class=nx>key_outside</span><span class=p>,</span> <span class=nx>value_outside</span> <span class=o>:=</span> <span class=k>range</span> <span class=nx>tmp</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>		<span class=k>go</span> <span class=kd>func</span><span class=p>()</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>			<span class=nx>fmt</span><span class=p>.</span><span class=nf>Println</span><span class=p>(</span><span class=nx>key_outside</span><span class=p>,</span> <span class=nx>value_outside</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>		<span class=p>}()</span>
+</span></span><span class=line><span class=cl>	<span class=p>}</span>
+</span></span><span class=line><span class=cl>	
+</span></span><span class=line><span class=cl>	<span class=c1>//正确写法
+</span></span></span><span class=line><span class=cl><span class=c1></span>	<span class=nx>tmp</span> <span class=o>:=</span> <span class=p>[]</span><span class=kt>string</span><span class=p>{</span><span class=nx>one</span><span class=p>,</span> <span class=nx>two</span><span class=p>,</span> <span class=nx>three</span><span class=p>}</span>
+</span></span><span class=line><span class=cl>	<span class=k>for</span> <span class=nx>key_outside</span><span class=p>,</span> <span class=nx>value_outside</span> <span class=o>:=</span> <span class=k>range</span> <span class=nx>tmp</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>		<span class=k>go</span> <span class=kd>func</span><span class=p>(</span><span class=nx>key_inside</span> <span class=kt>int</span><span class=p>,</span> <span class=nx>value_inside</span> <span class=kt>string</span><span class=p>)</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>			<span class=nx>fmt</span><span class=p>.</span><span class=nf>Println</span><span class=p>(</span><span class=nx>key_inside</span><span class=p>,</span> <span class=nx>value_inside</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>		<span class=p>}(</span><span class=nx>key</span><span class=p>,</span> <span class=nx>value</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>	<span class=p>}</span>
+</span></span></code></pre></div><p>以及 go-ping 库的作者在<a href=https://github.com/sparrc/go-ping#note-on-linux-support>README中</a>写了在Linux上使用会遇到权限问题</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-shell data-lang=shell><span class=line><span class=cl>Error listening <span class=k>for</span> ICMP packets: socket: permission denied
+</span></span></code></pre></div><p>他在Github中给出的解决方法是执行 <code>sudo sysctl -w net.ipv4.ping_group_range=0 2147483647</code><br>经过测试之后, 发现只要将用户的group写进去就可以了, 不需要这么大的范围:<code>sudo sysctl -w net.ipv4.ping_group_range='1000 1000'</code>
+然而, 在已经实现这部分之后发现这个命令只能管用一次, 重启就不行了, 要么就得以root权限运行程序, 感觉十分不优雅, 经过一番查找之后, 受<a href=https://stackoverflow.com/a/42227115>stack overflow上的这个回答</a>的启发, 感觉应该可以通过net包里面的<a href=https://golang.org/pkg/net/#DialTimeout>DialTimeout</a>函数来实现对服务器延迟的检测, 验证一下:</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-golang data-lang=golang><span class=line><span class=cl><span class=kd>func</span> <span class=nf>pingAndPrint</span><span class=p>(</span><span class=nx>AllVmessStruct</span> <span class=p>[]</span><span class=nx>V2rayConfig</span><span class=p>)</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>	<span class=kd>var</span> <span class=nx>wg</span> <span class=nx>sync</span><span class=p>.</span><span class=nx>WaitGroup</span>
+</span></span><span class=line><span class=cl>	<span class=k>for</span> <span class=nx>key</span><span class=p>,</span> <span class=nx>value</span> <span class=o>:=</span> <span class=k>range</span> <span class=nx>AllVmessStruct</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>		<span class=nx>wg</span><span class=p>.</span><span class=nf>Add</span><span class=p>(</span><span class=mi>1</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>		<span class=k>go</span> <span class=kd>func</span><span class=p>(</span><span class=nx>k</span> <span class=kt>int</span><span class=p>,</span> <span class=nx>v</span> <span class=nx>V2rayConfig</span><span class=p>)</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>			<span class=nx>pinger</span><span class=p>,</span> <span class=nx>err</span> <span class=o>:=</span> <span class=nx>ping</span><span class=p>.</span><span class=nf>NewPinger</span><span class=p>(</span><span class=nx>v</span><span class=p>.</span><span class=nx>Add</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>			<span class=k>if</span> <span class=nx>err</span> <span class=o>!=</span> <span class=kc>nil</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>				<span class=nb>panic</span><span class=p>(</span><span class=nx>err</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>			<span class=p>}</span>
+</span></span><span class=line><span class=cl>			<span class=nx>pinger</span><span class=p>.</span><span class=nx>Count</span> <span class=p>=</span> <span class=mi>5</span>
+</span></span><span class=line><span class=cl>			<span class=nx>pinger</span><span class=p>.</span><span class=nx>Timeout</span> <span class=p>=</span> <span class=mi>5</span> <span class=o>*</span> <span class=nx>time</span><span class=p>.</span><span class=nx>Second</span>
+</span></span><span class=line><span class=cl>			<span class=nx>pinger</span><span class=p>.</span><span class=nx>Interval</span> <span class=p>=</span> <span class=mi>100</span> <span class=o>*</span> <span class=nx>time</span><span class=p>.</span><span class=nx>Millisecond</span>
+</span></span><span class=line><span class=cl>			<span class=nx>pinger</span><span class=p>.</span><span class=nf>Run</span><span class=p>()</span>
+</span></span><span class=line><span class=cl>			<span class=nx>stats</span> <span class=o>:=</span> <span class=nx>pinger</span><span class=p>.</span><span class=nf>Statistics</span><span class=p>()</span>
+</span></span><span class=line><span class=cl>			<span class=nx>fmt</span><span class=p>.</span><span class=nf>Printf</span><span class=p>([</span><span class=o>%</span><span class=mo>02</span><span class=nx>d</span><span class=p>]:</span><span class=o>%-</span><span class=mi>40</span><span class=nx>s</span><span class=p>|</span> <span class=err>最低延迟</span><span class=p>:</span><span class=o>%-</span><span class=mi>12</span><span class=nx>s</span> <span class=err>最高延迟</span><span class=p>:</span><span class=o>%-</span><span class=mi>12</span><span class=nx>s</span> <span class=err>丢包率</span><span class=o>%</span><span class=nx>v</span> <span class=err>\</span><span class=nx>n</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>				<span class=nx>k</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>				<span class=nx>v</span><span class=p>.</span><span class=nx>Ps</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>				<span class=nx>stats</span><span class=p>.</span><span class=nx>MinRtt</span><span class=p>.</span><span class=nf>Round</span><span class=p>(</span><span class=nx>time</span><span class=p>.</span><span class=nx>Millisecond</span><span class=p>).</span><span class=nf>String</span><span class=p>(),</span>	<span class=c1>//抛弃小数点后的位数
+</span></span></span><span class=line><span class=cl><span class=c1></span>				<span class=nx>stats</span><span class=p>.</span><span class=nx>MaxRtt</span><span class=p>.</span><span class=nf>Round</span><span class=p>(</span><span class=nx>time</span><span class=p>.</span><span class=nx>Millisecond</span><span class=p>).</span><span class=nf>String</span><span class=p>(),</span>
+</span></span><span class=line><span class=cl>				<span class=nx>stats</span><span class=p>.</span><span class=nx>PacketLoss</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>			<span class=nx>wg</span><span class=p>.</span><span class=nf>Done</span><span class=p>()</span>
+</span></span><span class=line><span class=cl>		<span class=p>}(</span><span class=nx>key</span><span class=p>,</span> <span class=nx>value</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>	<span class=p>}</span>
+</span></span><span class=line><span class=cl>	<span class=nx>wg</span><span class=p>.</span><span class=nf>Wait</span><span class=p>()</span>
+</span></span><span class=line><span class=cl><span class=p>}</span>
+</span></span></code></pre></div><p>大功告成, 测试之后, 这个方法和直接ping的结果是非常接近的, 其实就是建立了一次完整的TCP连接耗费的时间.</p><h1 id=4选择节点>4.选择节点</h1><p>最开始使用很原始的输入编号然后选择的写法, 想了想应该有现成的轮子, Github一找, 果然找到了这个: <a href=https://github.com/AlecAivazis/survey>survey</a>, 支持单选多选,挺好用的, 然而得把所有的节点都给传进去才行, 再一番尝试之后还是放弃了, 这个库虽然还算好用, 但是有几个缺点, 一是选项只能是[]string, 然后选择结果也是一个[]string, 并不灵活, 我还需要用一个map来存节点名字和配置的对应关系, 二是选择完之后他会输出选择的选项, 没办法关掉, 有点丑, 于是最后还是回到手动输入节点的方式来实现了:</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-golang data-lang=golang><span class=line><span class=cl><span class=nx>fmt</span><span class=p>.</span><span class=nf>Print</span><span class=p>(</span><span class=err>请输入要选择的节点编号</span><span class=p>,</span><span class=err>以空格分割</span><span class=p>,</span><span class=err>回车结束</span><span class=p>:</span> <span class=p>)</span>
+</span></span><span class=line><span class=cl>	<span class=nx>scanner</span> <span class=o>:=</span> <span class=nx>bufio</span><span class=p>.</span><span class=nf>NewScanner</span><span class=p>(</span><span class=nx>os</span><span class=p>.</span><span class=nx>Stdin</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>	<span class=nx>scanner</span><span class=p>.</span><span class=nf>Scan</span><span class=p>()</span>
+</span></span><span class=line><span class=cl>	<span class=nx>selectResult</span> <span class=o>:=</span> <span class=nf>numbers</span><span class=p>(</span><span class=nx>scanner</span><span class=p>.</span><span class=nf>Text</span><span class=p>())</span>
+</span></span></code></pre></div><p>ps: 这篇文章是几年前写的, 因为一些需求，我又用了一次这个库, 还是一如既往的不太好用</p><h1 id=5生成configjson文件>5.生成config.json文件</h1><p>这部分倒是最简单的部分, 写struct然后输出就行了, 就是生成struct的过程不太优雅, 不过已经可以用了, 就懒得再折腾了</p></div><div class=post_footer><div class=meta><div class=info><span class="field tags"><i class=ri-stack-line></i>
 <a href=https://blog.5a6c.me/tags/golang/>golang</a>
-<a href=https://blog.5a6c.me/tags/vmess/>vmess</a>
-</span>
-</div>
-</div>
-</div>
-</div>
-<div class=doc_comments></div>
-</div>
-</div>
-</div>
-<a id=back_to_top href=# class=back_to_top><i class=ri-arrow-up-s-line></i></a>
-<footer class=footer>
-<div class=firends_links>
-<span>友情链接:</span>
+<a href=https://blog.5a6c.me/tags/vmess/>vmess</a></span></div></div></div></div><div class=doc_comments></div></div></div></div><a id=back_to_top href=# class=back_to_top><i class=ri-arrow-up-s-line></i></a><footer class=footer><div class=firends_links><span>友情链接:</span>
 <a href=https://louisnie.github.io/>louisnie</a>
-<a href=https://deconf.xyz/>deconf</a>
-</div>
-<div class=powered_by>
-<span>Theme based on <a href=https://varkai.com>zozo</a>.</span>
-<span>Power by <a href=http://www.gohugo.io/>Hugo</a>, solitude and love</span>
-</div>
-</footer>
-<script src=https://blog.5a6c.me/js/jquery-3.5.1.min.js></script>
-<link href=https://blog.5a6c.me/css/fancybox.min.css rel=stylesheet>
-<script src=https://blog.5a6c.me/js/fancybox.min.js></script>
+<a href=https://deconf.xyz/>deconf</a></div><div class=powered_by><span>Theme based on <a href=https://varkai.com>zozo</a>.</span>
+<span>Power by <a href=http://www.gohugo.io/>Hugo</a>, solitude and love</span></div></footer><script src=https://blog.5a6c.me/js/jquery-3.5.1.min.js></script>
+<link href=https://blog.5a6c.me/css/fancybox.min.css rel=stylesheet><script src=https://blog.5a6c.me/js/fancybox.min.js></script>
 <script src=https://blog.5a6c.me/js/zozo.js></script>
-<script type=application/javascript>var doNotTrack=!1;doNotTrack||(window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)},ga.l=+new Date,ga('create','UA-144516028-1','auto'),ga('send','pageview'))</script>
-<script async src=https://www.google-analytics.com/analytics.js></script>
-</body>
-</html>
+<script type=application/javascript>var doNotTrack=!1;doNotTrack||(window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)},ga.l=+new Date,ga("create","UA-144516028-1","auto"),ga("send","pageview"))</script><script async src=https://www.google-analytics.com/analytics.js></script></body></html>

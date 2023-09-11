@@ -42,8 +42,8 @@ $('[data-fancybox="gallery"]').fancybox({
   infobar: false,
   buttons: [],
   clickContent: "close",
-  autoFocus: false,
-  backFocus: false,
+  // autoFocus: false,
+  // backFocus: false,
   wheel: false,
   mobile: {
     clickContent: "close",
